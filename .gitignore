@@ -1,0 +1,12 @@
+# Claude Code memory (personal, not for version control)
+.claude/agent-memory/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node / Python artifacts
+node_modules/
+__pycache__/
+*.pyc
+.env
