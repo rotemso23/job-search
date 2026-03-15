@@ -36,8 +36,6 @@ The following directories exist locally but are excluded from version control:
 
 - `CV/` — tailored CV files per application
 - `job-results/` — job search session logs and tracker
-- `job-search-pipeline/` — pipeline scripts and outputs
-- `.claude/agent-memory/` — persistent agent memory
 
 ## Workflow Rules
 
