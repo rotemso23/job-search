@@ -28,8 +28,16 @@ The `jd-analyzer-strategy` skill is intentionally shared — the cv-tailoring-ag
 
 - Agent files are named `[name]-agent.md`, skill files are named `[name]-strategy.md`.
 - When logic changes (scoring, output format, filtering rules), edit the **skill** — never the agent.
-- When adding a new agent that reads JDs, load `jd-analyzer-strategy` first — do not duplicate its logic.
 - Each agent has its own memory directory under `.claude/agent-memory/[agent-name]/` with a `MEMORY.md` index.
+
+## Local-Only (not in repo)
+
+The following directories exist locally but are excluded from version control:
+
+- `CV/` — tailored CV files per application
+- `job-results/` — job search session logs and tracker
+- `job-search-pipeline/` — pipeline scripts and outputs
+- `.claude/agent-memory/` — persistent agent memory
 
 ## Workflow Rules
 
