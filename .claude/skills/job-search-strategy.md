@@ -11,7 +11,7 @@ You are executing a structured job search. Follow this playbook to maximize resu
 
 ## Phase 1 — Profile Extraction (Before You Search)
 
-Before opening any job board, extract from the user's CV and request:
+Before opening any job board, read the CV from `Rotem Solomon CV.md` (in the repo root) and extract from it and the user's request:
 
 | Signal | Where to find it | Why it matters |
 |--------|-----------------|----------------|
@@ -74,7 +74,24 @@ Search platforms in this priority order:
 
 - **Default window:** last 30 days. Flag anything older if included.
 - **Deduplication rule:** if the same role appears on 2+ platforms, list it once (prefer LinkedIn link if available, else the source with most detail).
+- **Cross-session deduplication:** Before finalizing results, read all existing files in `job-results/`. Any job that already appears there (matched by company name + job title) must be excluded from the new results. Do not show the user a job they have already been shown.
 - **Expired postings:** if a link 404s or shows "no longer accepting applications", discard it — never include it.
+
+---
+
+## Phase 4.5 — Deep JD Fetch (Before Scoring)
+
+LinkedIn blocks unauthenticated access — search results only return short snippets, not the full JD. Before scoring any job, attempt to get the full job description:
+
+**For each candidate job found via search:**
+1. Try `WebFetch` on the LinkedIn URL — if it returns content (some public listings work), use it.
+2. If LinkedIn blocks: search `"[Job Title] [Company] site:[company].com careers"` to find the same role on the company's career page.
+3. Try `WebFetch` on the company career page URL.
+4. If both fail: try other job boards — search `"[Job Title] [Company] site:glassdoor.com OR site:comeet.com OR site:greenhouse.io OR site:lever.co"`.
+
+**Scoring rule:** Only score a job ⭐⭐⭐ if you successfully fetched real JD content. If you only have a search snippet, cap the score at ⭐⭐ and note "JD not fully read" in the output.
+
+**Efficiency:** Do this for the top 15–20 candidates. Skip deep fetch for roles already eliminated by hard filters.
 
 ---
 
@@ -92,9 +109,9 @@ Apply filters in this order to avoid discarding too early:
    - Missing 1–2 preferred skills → keep, note as gap
    - Slightly off industry → keep if transferable
 
-3. **Scoring**:
-   - ⭐⭐⭐ Strong Match — ≥80% of requirements met, location/seniority exact
-   - ⭐⭐ Good Match — 60–79% met, or minor location/seniority deviation
+3. **Scoring** (based on actual JD content from Phase 4.5):
+   - ⭐⭐⭐ Strong Match — ≥80% of requirements met, location/seniority exact, full JD read
+   - ⭐⭐ Good Match — 60–79% met, or minor location/seniority deviation, or JD only partially read
    - ⭐ Potential Match — 40–59% met, notable gaps but worth considering
 
 **Target output:** 10–20 results. If under 10, widen the query.
@@ -122,6 +139,7 @@ For each job include:
 ```
 ### [Job Title] at [Company]
 - **Match**: ⭐⭐⭐ / ⭐⭐ / ⭐
+- **JD Source**: [LinkedIn snippet only | Company career page | Glassdoor/other board]
 - **Location**: [City | Remote | Hybrid]
 - **Seniority**: [Level]
 - **Posted**: [date or "~X days ago"]

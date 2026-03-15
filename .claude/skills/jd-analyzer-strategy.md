@@ -15,10 +15,20 @@ The user will provide one of:
 
 | Input type | What to do |
 |------------|-----------|
+| Job number reference (e.g. "job #3", "job number 5") | Look up the job in the most recent results file — see Phase 1a |
 | URL only | Fetch and extract — see Phase 2 |
 | Pasted text | Skip to Phase 3 (clean it) |
 | URL + pasted text | Use pasted text as primary; fetch URL only to fill gaps |
 | Neither | Ask: "Please share the job posting — paste the text or give me the URL." |
+
+### Phase 1a — Resolving a job number reference
+
+1. List files in `job-results/` and identify the most recent `YYYY-MM-DD_search.md` file (sort by date descending).
+2. Read that file and find the job entry matching the requested number (jobs are numbered sequentially in the results file).
+3. Extract the job's **URL** and any **pasted/cached description** from the results entry.
+4. If a URL is present, proceed to Phase 2 to fetch the full JD.
+5. If the results file contains the full JD text already, use it directly and skip to Phase 3.
+6. If the job number doesn't exist in the file, tell the user and ask them to provide the URL or paste the JD.
 
 ---
 
@@ -71,8 +81,8 @@ Once you have raw text (fetched or pasted), clean it before analysis:
 
 2. **Preserve structure** — keep: section headers (Requirements, Responsibilities, Nice to Have, About the Role, etc.), bullet points, any mentioned tools/technologies, compensation/benefits info.
 
-3. **Detect truncation** — if the text ends mid-sentence, mid-list, or with "..." flag it:
-   > ⚠️ **JD appears truncated.** Analysis will be based on partial content — results may be incomplete. Consider pasting the full description.
+3. **Detect truncation** — if the text ends mid-sentence, mid-list, or with "..." **stop immediately**:
+   > ⚠️ **JD appears truncated.** Please paste the full job description before I continue — I will not analyze a partial JD.
 
 4. **Detect boilerplate-only posts** — if the posting contains no specific requirements (only generic phrases like "strong communication skills", "team player", "competitive salary") flag it:
    > ⚠️ **Low-signal JD.** This posting is mostly boilerplate with few specific requirements. Analysis will have limited precision.
@@ -199,9 +209,52 @@ Tier 3 (context):     `term` `term` `term`
 
 ---
 
+## Phase 9 — Save Analysis Results
+
+After completing Phases 5–8, save the full analysis to a file:
+
+1. **Create a company folder** (if it doesn't already exist):
+   `C:\Users\משתמש\Desktop\job search\CV\[Company Name]\`
+   Use the exact company name from the JD. If unknown, use the job title.
+
+2. **Save the analysis as:**
+   `C:\Users\משתמש\Desktop\job search\CV\[Company Name]\jd-analysis.md`
+
+3. **File format:**
+```markdown
+# JD Analysis — [Company Name] / [Job Title]
+
+**Source:** [URL or "user-provided text"]
+
+## Must-Have Requirements
+- [requirement] [M]
+
+## Nice-to-Have Requirements
+- [requirement] [N]
+
+## Hidden Priorities
+1. [finding]
+2. [finding]
+
+## Technical Stack
+| Technology | Category | Must/Nice |
+|------------|----------|-----------|
+| [tech] | [category] | [M/N] |
+
+## ATS Keywords
+Tier 1 (exact match): `term` `term`
+Tier 2 (high value):  `term` `term`
+Tier 3 (context):     `term` `term`
+```
+
+4. **Confirm to the user:**
+   > Analysis saved to `CV\[Company Name]\jd-analysis.md`
+
+---
+
 ## Rules
 
-- Never analyze a blank or near-blank fetch result — always ask for pasted text instead
+- Never analyze a blank, near-blank, or truncated JD — stop and ask the user to paste the full text before proceeding
 - Never guess at missing requirements — only extract what's explicitly present
 - If the URL and pasted text conflict (e.g., different roles), ask the user which is correct
 - Always note the source of the JD text in your output (URL fetched / user-provided text / partial fetch)

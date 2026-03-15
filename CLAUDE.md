@@ -30,3 +30,8 @@ The `jd-analyzer-strategy` skill is intentionally shared — the cv-tailoring-ag
 - When logic changes (scoring, output format, filtering rules), edit the **skill** — never the agent.
 - When adding a new agent that reads JDs, load `jd-analyzer-strategy` first — do not duplicate its logic.
 - Each agent has its own memory directory under `.claude/agent-memory/[agent-name]/` with a `MEMORY.md` index.
+
+## Workflow Rules
+
+- **Always read the strategy skill before launching an agent.** For example, before launching `job-search-agent`, read `job-search-strategy.md` and complete all required pre-flight steps (e.g. Phase 1 profile extraction) before invoking the agent.
+- **After every job search session, save results to a file** at `job-results/YYYY-MM-DD_search.md`. Include all job listings and the search summary.

@@ -1,6 +1,13 @@
 # Claude Code memory (personal, not for version control)
 .claude/agent-memory/
 
+# Personal / private files
+job-search-pipeline/
+CV/
+job-results/
+Rotem Solomon CV.md
+Rotem Solomon CV.pdf
+
 # OS
 .DS_Store
 Thumbs.db
@@ -10,3 +17,6 @@ node_modules/
 __pycache__/
 *.pyc
 .env
+
+# Office temp files
+~$*

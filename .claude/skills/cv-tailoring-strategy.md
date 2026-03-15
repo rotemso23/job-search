@@ -50,14 +50,25 @@ Tell the user what was changed and where the file was saved.
 
 ## Phase 1 — Inputs Checklist (JD Tailoring mode)
 
-Before tailoring, confirm you have both:
+Follow this sequence in order — do not skip ahead:
 
-| Input | What to do if missing |
-|-------|----------------------|
-| The user's CV (full text or file) | Load from memory, or ask: "Please share your CV — paste the text or upload the file." |
-| The job description | Ask: "Please share the JD — paste the text or give me the URL." |
+**Step 1 — Get the CV**
+Load from memory if available. If not, ask: "Please share your CV — paste the text or upload the file."
 
-If the JD was provided as a URL, run the `jd-analyzer-strategy` playbook first to extract clean JD content, must-haves, hidden priorities, tech stack, and ATS keywords. If the JD was already analyzed, ask the user to paste the analysis output to avoid re-fetching.
+**Step 2 — Check for existing JD analysis**
+If the company name is known, look for `C:\Users\משתמש\Desktop\job search\CV\[Company Name]\jd-analysis.md`.
+- If the file **exists** → load it and skip to Phase 2. Do not re-fetch or re-analyze.
+- If the file **does not exist** → continue to Step 3.
+
+**Step 3 — Verify the full JD is available**
+Before running any analysis, confirm you have the complete job description text:
+- If the JD appears truncated, cut off, ends with "…", or is missing sections — **stop immediately**:
+  > "The job description appears incomplete. Please paste the full JD before I continue."
+- If no JD has been provided at all — ask: "Please share the JD — paste the text or give me the URL."
+- Only proceed once the full JD is confirmed complete.
+
+**Step 4 — Run JD analysis**
+Run the `jd-analyzer-strategy` playbook to extract must-haves, hidden priorities, tech stack, and ATS keywords. The analyzer saves the result to `CV\[Company Name]\jd-analysis.md` automatically.
 
 ---
 
@@ -172,53 +183,56 @@ If the JD emphasizes certifications or specific credentials, elevate Education/C
 
 ## Phase 8 — Output Format
 
-Produce the tailored CV in full, plus an audit trail:
+**Do NOT modify or save the base CV.** Instead, produce a recommendations file that tells the user exactly what to change.
 
-### Tailored CV
-Full CV text, ready to copy. Use the same format as the original (preserve structure, font hints, section names) unless a structural change was made in Phase 7.
-
-### Saving the CV
-
-After producing the tailored CV, save it as follows:
+### Saving the Recommendations
 
 1. **Create a company folder** inside the CV directory:
    `C:\Users\משתמש\Desktop\job search\CV\[Company Name]\`
    Use the exact company name from the JD. If the company name is unknown, use the job title instead.
 
-2. **Save the CV as Markdown:**
-   `C:\Users\משתמש\Desktop\job search\CV\[Company Name]\Rotem Solomon CV.md`
+2. **Save a recommendations file:**
+   `C:\Users\משתמש\Desktop\job search\CV\[Company Name]\recommendations.md`
 
-3. **Export to PDF** by running:
-   ```
-   npx md-to-pdf "C:\Users\משתמש\Desktop\job search\CV\[Company Name]\Rotem Solomon CV.md"
-   ```
-   This produces `Rotem Solomon CV.pdf` in the same folder.
+3. **Confirm to the user:**
+   > Recommendations saved to `CV\[Company Name]\recommendations.md`
 
-4. **Confirm to the user:**
-   > CV saved to `CV\[Company Name]\Rotem Solomon CV.pdf`
+### Recommendations File Format
 
-### Change Log
-```
-## Summary
-- [what changed and why]
+```markdown
+# CV Tailoring Recommendations — [Company Name] / [Job Title]
 
-## Experience — [Company / Role]
-- Bullet 1: [original] → [rewritten] | Keywords: [list]
-- Bullet 2: unchanged
-...
+**Job Link:** [URL to the job posting]
 
-## Skills section
-- [what was added, removed, reordered]
+## Summary Section
+- **Rewrite to:**
+  [full rewritten summary text]
+- **Reason:** [what changed and why]
 
-## Section order
-- [original order] → [new order] | Reason: [why]
+## Experience Bullets
+
+### [Role Title] @ [Company]
+- **Change:** "[original bullet]"
+  **To:** "[rewritten bullet]"
+  **Keywords added:** [list]
+
+- **Remove:** "[low-relevance bullet]"
+  **Reason:** [why it hurts more than helps for this role]
+
+## Skills Section
+- **Add:** [skill / technology] — [where to place it]
+- **Remove:** [skill] — [reason]
+- **Reorder:** [new priority order for this role]
+
+## Section Order
+- **Change from:** [original order]
+- **Change to:** [new order]
+- **Reason:** [why]
 
 ## Honest Gaps
-- [skill]: not in CV — user should address before applying or in cover letter
-```
+- ⚠️ [skill]: required by JD but not in CV — address in cover letter or before applying
 
-### ATS Keyword Coverage
-```
+## ATS Keyword Coverage
 Tier 1 (must appear): [term ✓/✗] [term ✓/✗] ...
 Tier 2 (high value):  [term ✓/✗] [term ✓/✗] ...
 ```
