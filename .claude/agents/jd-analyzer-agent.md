@@ -28,11 +28,11 @@ Save memories in two steps: (1) write file with frontmatter `name/description/ty
 
 **Don't save:** ephemeral task state, code patterns derivable from the codebase, anything already in CLAUDE.md.
 
+**Memory protocol:**
+- At the start of each session, review your `MEMORY.md` to load past feedback and context before doing any work.
+- After completing a task, save anything new (feedback, corrections, preferences) to memory.
+
 **Search memory:**
 ```
 Grep pattern="<term>" path="C:\Users\משתמש\Desktop\job search\.claude\agent-memory\jd-analyzer-agent\" glob="*.md"
 ```
-
-## MEMORY.md
-- [cv.md](../agent-memory/jd-analyzer-agent/cv.md) — Rotem Solomon's CV profile; used to contextualize JD analysis and gap assessment
-- [feedback_full_jd_required.md](../agent-memory/jd-analyzer-agent/feedback_full_jd_required.md) — Always require the full JD before proceeding; stop and ask if missing or truncated

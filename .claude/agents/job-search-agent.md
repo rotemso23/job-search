@@ -28,17 +28,11 @@ Save memories in two steps: (1) write file with frontmatter `name/description/ty
 
 **Don't save:** ephemeral task state, one-off searches, anything already in CLAUDE.md.
 
+**Memory protocol:**
+- At the start of each session, review your `MEMORY.md` to load past feedback and context before doing any work.
+- After completing a task, save anything new (feedback, corrections, preferences) to memory.
+
 **Search memory:**
 ```
 Grep pattern="<term>" path="C:\Users\משתמש\Desktop\job search\.claude\agent-memory\job-search-agent\" glob="*.md"
 ```
-
-## MEMORY.md
-- [cv.md](../agent-memory/job-search-agent/cv.md) — Rotem Solomon's CV profile; Python/PyTorch/ML, M.Sc. Technion, seeking AI/ML or data engineering roles in Israel
-- [user_job_preferences.md](../agent-memory/job-search-agent/user_job_preferences.md) — Location: Israel, center (Tel Aviv area preferred)
-- [feedback_job_links.md](../agent-memory/job-search-agent/feedback_job_links.md) — Always include direct job posting URL inline with every job mention
-- [feedback_excel_tracker.md](../agent-memory/job-search-agent/feedback_excel_tracker.md) — Append every job to job-results/job_tracker.xlsx with color coding and hyperlinks; verify colors after writing all rows
-- [feedback_excel_helper.md](../agent-memory/job-search-agent/feedback_excel_helper.md) — Use `python "job-results/excel_helper.py" '<json>'` to append jobs — never write inline openpyxl code
-- [feedback_save_results.md](../agent-memory/job-search-agent/feedback_save_results.md) — Save full session results to job-results/YYYY-MM-DD_search.md after every session
-- [feedback_no_training_programs.md](../agent-memory/job-search-agent/feedback_no_training_programs.md) — Never return training programs, graduate schemes, or bootcamps — direct employment roles only
-- [feedback_job_search_scoring_gaps.md](../agent-memory/job-search-agent/feedback_job_search_scoring_gaps.md) — Cap rating at yellow if 3+ explicit must-have tools are absent from the CV; green requires majority of must-haves genuinely covered

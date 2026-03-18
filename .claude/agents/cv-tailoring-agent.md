@@ -33,21 +33,11 @@ Save memories in two steps: (1) write file with frontmatter `name/description/ty
 
 **Don't save:** ephemeral task state, one-off rewrites, anything already in CLAUDE.md.
 
+**Memory protocol:**
+- At the start of each session, review your `MEMORY.md` to load past feedback and context before doing any work.
+- After completing a task, save anything new (feedback, corrections, preferences) to memory.
+
 **Search memory:**
 ```
 Grep pattern="<term>" path="C:\Users\משתמש\Desktop\job search\.claude\agent-memory\cv-tailoring-agent\" glob="*.md"
 ```
-
-## MEMORY.md
-- [cv.md](../agent-memory/cv-tailoring-agent/cv.md) — Rotem Solomon's full CV text; primary source for all tailoring sessions
-- [feedback_cv_honesty.md](../agent-memory/cv-tailoring-agent/feedback_cv_honesty.md) — Never add skills/tools not in the original CV; gaps go in gap analysis only
-- [feedback_cv_workflow.md](../agent-memory/cv-tailoring-agent/feedback_cv_workflow.md) — Output is jd-analysis.md + recommendations.md only; no tailored CV copy, no PDF; source is Rotem Solomon CV.md
-- [feedback_full_jd_required.md](../agent-memory/cv-tailoring-agent/feedback_full_jd_required.md) — Always require the full JD before proceeding; stop and ask if missing or truncated
-- [feedback_cv_folder_naming.md](../agent-memory/cv-tailoring-agent/feedback_cv_folder_naming.md) — If CV\[Company] folder already exists, create CV\[Company] — [Role Title]\ instead — never overwrite existing files
-- [feedback_no_section_order.md](../agent-memory/cv-tailoring-agent/feedback_no_section_order.md) — Do not include a Section Order section in recommendations.md unless explicitly requested
-- [feedback_scd_no_ml.md](../agent-memory/cv-tailoring-agent/feedback_scd_no_ml.md) — Never frame the SCD (Test Development Engineer) role as ML work — it was not ML; no "ML evaluation" or similar framing
-- [feedback_no_domain_misrepresentation.md](../agent-memory/cv-tailoring-agent/feedback_no_domain_misrepresentation.md) — Never label Rotem as an NLP researcher or any domain title he has no experience in — even as an ATS keyword strategy; ATS injection is for tools/methods only, not domain identities
-- [feedback_no_production.md](../agent-memory/cv-tailoring-agent/feedback_no_production.md) — Never use "production", "production-grade", or "production-ready" for the multi-agent project — it is a personal automation tool, not a production system
-- [feedback_no_anomaly_detection.md](../agent-memory/cv-tailoring-agent/feedback_no_anomaly_detection.md) — Never claim anomaly detection for the M.Sc. thesis; thesis was model optimization and energy efficiency, not anomaly detection
-- [feedback_summary_seeking_line.md](../agent-memory/cv-tailoring-agent/feedback_summary_seeking_line.md) — Summary must always end with a general "seeking" sentence — not transparently mirroring the target role title
-- [feedback_ats_table_consistency.md](../agent-memory/cv-tailoring-agent/feedback_ats_table_consistency.md) — ATS keyword table must match the actual rewrites — every "after rewrite" keyword must appear in the text; do a final consistency pass before outputting recommendations.md
