@@ -1,5 +1,6 @@
-# Claude Code memory (personal, not for version control)
+# Claude Code memory and local settings (personal, not for version control)
 .claude/agent-memory/
+.claude/settings.local.json
 
 # Personal / private files
 job-search-pipeline/
