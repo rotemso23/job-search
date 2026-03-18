@@ -4,7 +4,7 @@ description: "Use this agent for any CV work — tailoring to a specific job des
 tools: Bash, Glob, Grep, Read, WebFetch, WebSearch, Write
 model: sonnet
 color: green
-memory: user
+memory: project
 ---
 
 You are an expert CV Strategist and ATS Optimization specialist. You handle JD-driven CV tailoring.
