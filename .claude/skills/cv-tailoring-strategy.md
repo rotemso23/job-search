@@ -5,46 +5,11 @@ description: "Teaches the cv-tailoring-agent how to adapt a CV to a specific job
 
 # CV Tailoring Strategy Playbook
 
-You handle two modes of CV work. Identify which applies before doing anything else:
+This playbook covers JD-driven CV tailoring only. Follow phases 1–7 in order.
 
 | Mode | When to use |
 |------|------------|
 | **JD Tailoring** (Phases 1–8) | User wants the CV adapted to a specific job posting |
-| **Direct Edit** (Phase 0) | User wants to update, correct, or improve the CV without a JD |
-
----
-
-## Phase 0 — Direct CV Edit Mode (no JD)
-
-Use this mode when the user asks to update, add, remove, or correct something in their CV directly — not in response to a JD.
-
-**Step 1 — Get the CV**
-Load from memory if available. If not, ask the user to paste or upload it.
-
-**Step 2 — Apply the requested changes**
-Make only the changes explicitly requested. Do not rewrite unrelated sections.
-
-Show a before/after for every change:
-```
-Before: [original text]
-After:  [updated text]
-Reason: [what changed]
-```
-
-**Step 3 — Save the updated CV**
-Write the full updated CV to:
-`C:\Users\משתמש\Desktop\job search\CV\Rotem Solomon CV.md`
-
-If the `CV` folder doesn't exist, create the file anyway — Claude Code will create the directory.
-
-Also update the CV in memory:
-- `C:\Users\משתמש\.claude\projects\c--Users-------Desktop-job-search\memory\user_cv.md`
-- `C:\Users\משתמש\Desktop\job search\.claude\agent-memory\cv-tailoring-agent\cv.md`
-- `C:\Users\משתמש\Desktop\job search\.claude\agent-memory\job-search-agent\cv.md`
-- `C:\Users\משתמש\Desktop\job search\.claude\agent-memory\jd-analyzer-agent\cv.md`
-
-**Step 4 — Confirm**
-Tell the user what was changed and where the file was saved.
 
 ---
 
@@ -166,22 +131,7 @@ Keywords added: [list]
 
 ---
 
-## Phase 7 — Section Order
-
-Reorder CV sections to match what this specific role prioritizes:
-
-| Role type | Recommended order |
-|-----------|------------------|
-| Technical/engineering | Summary → Skills → Experience → Projects → Education |
-| Management/leadership | Summary → Experience → Skills → Education |
-| Career change / stretch role | Summary → Skills → Relevant Projects → Experience → Education |
-| Early career (< 3 years) | Summary → Education → Skills → Experience |
-
-If the JD emphasizes certifications or specific credentials, elevate Education/Certifications above Experience.
-
----
-
-## Phase 8 — Output Format
+## Phase 7 — Output Format
 
 **Do NOT modify or save the base CV.** Instead, produce a recommendations file that tells the user exactly what to change.
 

@@ -18,7 +18,7 @@ The playbook is the single source of truth for: ingestion, cleaning, must-have v
 
 ## Memory
 
-Memory directory: `C:\Users\משתמש\.claude\agent-memory\jd-analyzer\`
+Memory directory: `C:\Users\משתמש\Desktop\job search\.claude\agent-memory\jd-analyzer-agent\`
 
 Save memories in two steps: (1) write file with frontmatter `name/description/type`, (2) add pointer to `MEMORY.md`.
 
@@ -30,8 +30,9 @@ Save memories in two steps: (1) write file with frontmatter `name/description/ty
 
 **Search memory:**
 ```
-Grep pattern="<term>" path="C:\Users\משתמש\.claude\agent-memory\jd-analyzer\" glob="*.md"
+Grep pattern="<term>" path="C:\Users\משתמש\Desktop\job search\.claude\agent-memory\jd-analyzer-agent\" glob="*.md"
 ```
 
 ## MEMORY.md
-Your MEMORY.md is currently empty. When you save new memories, they will appear here.
+- [cv.md](../agent-memory/jd-analyzer-agent/cv.md) — Rotem Solomon's CV profile; used to contextualize JD analysis and gap assessment
+- [feedback_full_jd_required.md](../agent-memory/jd-analyzer-agent/feedback_full_jd_required.md) — Always require the full JD before proceeding; stop and ask if missing or truncated

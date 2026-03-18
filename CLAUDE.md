@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this repository is
 
-A Claude Code agent workspace for an AI-assisted job search pipeline. There is no application code — the repo consists entirely of agent definitions and strategy playbooks.
+A Claude Code agent workspace for an AI-assisted job search pipeline. It contains agent definitions and strategy playbooks, plus an automation layer that runs the pipeline on a schedule without manual intervention.
 
 ## Architecture
 
@@ -30,12 +30,27 @@ The `jd-analyzer-strategy` skill is intentionally shared — the cv-tailoring-ag
 - When logic changes (scoring, output format, filtering rules), edit the **skill** — never the agent.
 - Each agent has its own memory directory under `.claude/agent-memory/[agent-name]/` with a `MEMORY.md` index.
 
+## Automation Pipeline
+
+Three scripts wire the agents into a fully autonomous daily loop:
+
+| File | Role |
+|------|------|
+| `setup-scheduler.ps1` | Run once (as Administrator) to register two Windows Task Scheduler tasks |
+| `run-job-search.ps1` | Triggered daily at 08:15 — runs `job-search-agent`, then emails results with a numbered quick-apply list |
+| `check-reply.py` | Triggered hourly from 09:30 — checks Gmail for a reply, parses the selected job numbers, runs `cv-tailoring-agent` per job, sends a completion email |
+
+**Flow:** scheduler → `run-job-search.ps1` → email to user → user replies with numbers → `check-reply.py` picks it up → `cv-tailoring-agent` runs per selection → completion email sent.
+
+Credentials are stored in `.credentials/gmail.secret` (app password, plain text). A per-date flag file (`.credentials/YYYY-MM-DD_tailoring_done.flag`) prevents double-processing replies.
+
 ## Local-Only (not in repo)
 
 The following directories exist locally but are excluded from version control:
 
 - `CV/` — tailored CV files per application
 - `job-results/` — job search session logs and tracker
+- `.credentials/` — Gmail app password and daily done-flag files
 
 ## Workflow Rules
 

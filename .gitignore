@@ -20,3 +20,6 @@ __pycache__/
 
 # Office temp files
 ~$*
+
+# Local credentials (never commit)
+.credentials/

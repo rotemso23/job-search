@@ -41,4 +41,35 @@ The system uses a two-layer pattern:
 
 2. **Analyze a job description** — paste a JD and launch the `jd-analyzer-agent` to extract required skills, ATS keywords, and real role priorities.
 
-3. **Tailor your CV** — launch the `cv-tailoring-agent` with a JD to get a tailored version of your CV optimized for that specific role.
+3. **Tailor your CV** — launch the `cv-tailoring-agent` with a JD to get `jd-analysis.md` and `recommendations.md` — a structured tailoring guide you apply to your own CV file.
+
+---
+
+## Automation Pipeline
+
+In addition to manual use, the workspace includes a fully autonomous daily loop driven by Windows Task Scheduler.
+
+### Scripts
+
+| File | Role |
+|------|------|
+| `setup-scheduler.ps1` | Run once (as Administrator) to register the scheduled tasks |
+| `run-job-search.ps1` | Runs daily at 08:15 — executes `job-search-agent` and emails results with a numbered quick-apply list |
+| `check-reply.py` | Runs hourly from 09:30 — checks Gmail for your reply, parses selected job numbers, runs `cv-tailoring-agent` per job, sends a completion email |
+
+### Flow
+
+```
+scheduler
+  → run-job-search.ps1 → email to user
+  → user replies with job numbers
+  → check-reply.py → cv-tailoring-agent per selection → completion email
+```
+
+### Setup
+
+1. Store your Gmail app password in `.credentials/gmail.secret` (plain text).
+2. Run `setup-scheduler.ps1` as Administrator once to register the tasks.
+3. The pipeline runs automatically from that point on.
+
+> `.credentials/` is excluded from version control — never commit credentials.

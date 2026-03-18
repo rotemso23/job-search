@@ -159,6 +159,38 @@ End with a **Search Summary**:
 
 ---
 
+## Phase 8 — Save Results
+
+After presenting results to the user, complete both steps:
+
+### Step 1 — Markdown session log
+Save the full output to:
+`job-results/YYYY-MM-DD_search.md`
+
+Include: all job listings (same format as Phase 7), plus the Search Summary (platforms, queries, match breakdown).
+
+### Step 2 — Excel tracker
+Use the helper script at `job-results/excel_helper.py`. Do NOT write inline openpyxl code.
+
+**Command:**
+```bash
+python "job-results/excel_helper.py" '<json>'
+```
+
+**JSON format** — pass a JSON array of job objects:
+```json
+[
+  {"title": "Algorithm Engineer", "company": "Taboola", "location": "Tel Aviv (Hybrid)", "match": "good", "url": "https://..."},
+  {"title": "Data Scientist", "company": "Wix", "location": "Tel Aviv", "match": "strong", "url": "https://..."}
+]
+```
+
+**`match` values:** `"strong"` (⭐⭐⭐), `"good"` (⭐⭐), `"potential"` (⭐)
+
+The script handles all formatting, colors, borders, hyperlinks, and freeze panes automatically. It appends to existing data and creates the file if it doesn't exist.
+
+---
+
 ## Rules (Non-Negotiable)
 
 - Never fabricate a job posting or URL
