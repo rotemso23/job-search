@@ -41,3 +41,4 @@ Grep pattern="<term>" path="C:\Users\משתמש\Desktop\job search\.claude\agent
 - [feedback_excel_helper.md](../agent-memory/job-search-agent/feedback_excel_helper.md) — Use `python "job-results/excel_helper.py" '<json>'` to append jobs — never write inline openpyxl code
 - [feedback_save_results.md](../agent-memory/job-search-agent/feedback_save_results.md) — Save full session results to job-results/YYYY-MM-DD_search.md after every session
 - [feedback_no_training_programs.md](../agent-memory/job-search-agent/feedback_no_training_programs.md) — Never return training programs, graduate schemes, or bootcamps — direct employment roles only
+- [feedback_job_search_scoring_gaps.md](../agent-memory/job-search-agent/feedback_job_search_scoring_gaps.md) — Cap rating at yellow if 3+ explicit must-have tools are absent from the CV; green requires majority of must-haves genuinely covered

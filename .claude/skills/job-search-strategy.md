@@ -110,9 +110,23 @@ Apply filters in this order to avoid discarding too early:
    - Slightly off industry → keep if transferable
 
 3. **Scoring** (based on actual JD content from Phase 4.5):
-   - ⭐⭐⭐ Strong Match — ≥80% of requirements met, location/seniority exact, full JD read
-   - ⭐⭐ Good Match — 60–79% met, or minor location/seniority deviation, or JD only partially read
-   - ⭐ Potential Match — 40–59% met, notable gaps but worth considering
+
+   Before scoring, split the JD requirements into two lists:
+   - **Must-haves:** anything the JD marks as required, mandatory, or lists without qualification
+   - **Nice-to-haves:** anything marked as "advantage", "bonus", "preferred", or "plus"
+
+   Count how many must-haves are genuinely present in the CV (not inferred, not adjacent — actually present).
+
+   | Rating | Rule |
+   |--------|------|
+   | ⭐⭐⭐ Strong Match | ≥80% of must-haves covered AND ≤1 must-have tool/skill absent AND full JD read |
+   | ⭐⭐ Good Match | 60–79% of must-haves covered OR exactly 2 must-have tools absent OR JD only partially read |
+   | ⭐ Potential Match | 40–59% of must-haves covered OR 3+ must-have tools absent |
+
+   **Hard cap rules (cannot be overridden by keyword overlap):**
+   - If 3 or more explicit must-have tools or domain skills are absent from the CV → cap at ⭐ regardless of overall keyword match
+   - If the JD requires a specific domain (e.g. NLP, computer vision, embedded) and the CV has no project or work experience in that domain → cap at ⭐⭐ maximum
+   - If the full JD was not read → cap at ⭐⭐ maximum
 
 **Target output:** 10–20 results. If under 10, widen the query.
 
