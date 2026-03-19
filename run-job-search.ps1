@@ -1,16 +1,13 @@
 # Daily Job Search Runner
 # Runs the job-search-agent via Claude Code CLI and sends results by email.
 
-# Fix user profile paths when running as SYSTEM account
-$userHome         = "C:\Users\משתמש"
-$env:USERPROFILE  = $userHome
-$env:APPDATA      = "$userHome\AppData\Roaming"
-$env:LOCALAPPDATA = "$userHome\AppData\Local"
-$env:PATH         = "$userHome\.local\bin;" + $env:PATH
+$userHome = $env:USERPROFILE
+$env:PATH = "$userHome\.local\bin;" + $env:PATH
 
 $workDir  = $PSScriptRoot
 $date     = Get-Date -Format "yyyy-MM-dd"
 $logFile  = "$workDir\job-results\${date}_search.md"
+$debugLog = "$workDir\job-results\${date}_debug.log"
 
 $from     = "rotemso23@gmail.com"
 $to       = "rotemso23@gmail.com"
@@ -21,6 +18,10 @@ Set-Location $workDir
 # -- 1. Run the job-search-agent ----------------------------------------------
 Write-Host "[$(Get-Date -Format 'HH:mm:ss')] Starting job-search-agent..."
 
+# Allow claude to run even if a Claude Code session is already open
+Remove-Item Env:\CLAUDECODE -ErrorAction SilentlyContinue
+
+
 $prompt = @"
 Run the job-search-agent for today's daily job search.
 Today is $date.
@@ -28,7 +29,8 @@ Follow the full job-search-strategy playbook (all phases).
 Save results to job-results/${date}_search.md and append all new jobs to the Excel tracker.
 "@
 
-& claude --dangerously-skip-permissions -p $prompt
+$claudeOutput = & claude --dangerously-skip-permissions -p $prompt 2>&1
+$claudeOutput | Out-File -FilePath $debugLog -Encoding UTF8 -Append
 
 Write-Host "[$(Get-Date -Format 'HH:mm:ss')] Agent finished."
 

@@ -74,7 +74,12 @@ Search platforms in this priority order:
 
 - **Default window:** last 30 days. Flag anything older if included.
 - **Deduplication rule:** if the same role appears on 2+ platforms, list it once (prefer LinkedIn link if available, else the source with most detail).
-- **Cross-session deduplication:** Before finalizing results, read all existing files in `job-results/`. Any job that already appears there (matched by company name + job title) must be excluded from the new results. Do not show the user a job they have already been shown.
+- **Cross-session deduplication (MANDATORY — do this before scoring):**
+  1. Read **every** file in `job-results/` using the Read tool.
+  2. Build a seen-jobs list: extract every `### [Job Title] at [Company]` heading from those files.
+  3. For each candidate job you found today, check it against the seen-jobs list. Match on company name + job title (case-insensitive, ignore minor wording differences like "—" vs "-" or word order shifts).
+  4. **Discard any match.** Do not include it in results, scoring, or the email. Do not show the user a job they have already been shown.
+  5. If discarding a job leaves you with fewer than 5 results, run an additional search pass before finalizing.
 - **Expired postings:** if a link 404s or shows "no longer accepting applications", discard it — never include it.
 
 ---

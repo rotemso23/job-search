@@ -8,7 +8,7 @@ $searchAction = New-ScheduledTaskAction `
     -Execute "powershell.exe" `
     -Argument "-NonInteractive -WindowStyle Hidden -ExecutionPolicy Bypass -File `"$workDir\run-job-search.ps1`""
 
-$searchTrigger  = New-ScheduledTaskTrigger -Daily -At "08:15"
+$searchTrigger  = New-ScheduledTaskTrigger -Daily -At "08:00"
 $searchSettings = New-ScheduledTaskSettingsSet `
     -StartWhenAvailable `
     -RunOnlyIfNetworkAvailable `
@@ -18,16 +18,16 @@ $searchSettings.StopIfGoingOnBatteries = $false
 
 Register-ScheduledTask `
     -TaskName    "DailyJobSearch" `
-    -Description "Runs Claude job-search-agent daily at 08:15 and emails results" `
+    -Description "Runs Claude job-search-agent daily at 08:00 and emails results" `
     -Action      $searchAction `
     -Trigger     $searchTrigger `
     -Settings    $searchSettings `
     -RunLevel    Highest `
     -Force
 
-Write-Host "Task 1 registered: DailyJobSearch (runs daily at 08:15)"
+Write-Host "Task 1 registered: DailyJobSearch (runs daily at 08:00)"
 
-# ── Task 2: Hourly reply checker (starts at 09:30, repeats every hour) ────────
+# ── Task 2: Hourly reply checker (starts at 09:00, repeats every hour) ────────
 $python = (Get-Command python -ErrorAction SilentlyContinue).Source
 if (-not $python) {
     Write-Warning "Python not found in PATH. Update the task action manually with the correct python path."
@@ -39,9 +39,9 @@ $replyAction = New-ScheduledTaskAction `
     -Argument "`"$workDir\check-reply.py`"" `
     -WorkingDirectory $workDir
 
-# Start at 09:30, repeat every 1 hour indefinitely
-$replyTrigger = New-ScheduledTaskTrigger -Daily -At "09:30"
-$replyTrigger.Repetition = (New-ScheduledTaskTrigger -RepetitionInterval (New-TimeSpan -Hours 1) -Once -At "09:30").Repetition
+# Start at 09:00, repeat every 1 hour indefinitely
+$replyTrigger = New-ScheduledTaskTrigger -Daily -At "09:00"
+$replyTrigger.Repetition = (New-ScheduledTaskTrigger -RepetitionInterval (New-TimeSpan -Hours 1) -Once -At "09:00").Repetition
 
 $replySettings = New-ScheduledTaskSettingsSet `
     -StartWhenAvailable `
@@ -52,13 +52,13 @@ $replySettings.StopIfGoingOnBatteries = $false
 
 Register-ScheduledTask `
     -TaskName    "DailyJobReplyChecker" `
-    -Description "Checks Gmail hourly starting 09:30 for reply to job search email and runs CV tailor agent" `
+    -Description "Checks Gmail hourly starting 09:00 for reply to job search email and runs CV tailor agent" `
     -Action      $replyAction `
     -Trigger     $replyTrigger `
     -Settings    $replySettings `
     -RunLevel    Highest `
     -Force
 
-Write-Host "Task 2 registered: DailyJobReplyChecker (runs every hour starting 09:30)"
+Write-Host "Task 2 registered: DailyJobReplyChecker (runs every hour starting 09:00)"
 Write-Host ""
 Write-Host "Setup complete."
