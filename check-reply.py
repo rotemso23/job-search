@@ -60,7 +60,11 @@ def parse_jobs(date):
     for s in sections:
         m = re.match(r'^### (.+)', s)
         if m:
-            jobs.append((m.group(1).strip(), s))
+            title = m.group(1).strip()
+            # Skip "Job X of Y" header lines — they are section counters, not job listings
+            if re.match(r'^Job \d+ of \d+$', title):
+                continue
+            jobs.append((title, s))
     return jobs
 
 
