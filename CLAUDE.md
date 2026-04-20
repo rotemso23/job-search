@@ -37,7 +37,7 @@ Three scripts wire the agents into a fully autonomous daily loop:
 | File | Role |
 |------|------|
 | `setup-scheduler.ps1` | Run once (as Administrator) to register two Windows Task Scheduler tasks |
-| `run-job-search.ps1` | Triggered daily at 08:00 — runs `job-search-agent`, then emails results with a numbered quick-apply list |
+| `run-job-search.ps1` | Triggered daily at 08:15 — runs `job-search-agent`, then emails results with a numbered quick-apply list |
 | `check-reply.py` | Triggered hourly from 09:00 — checks Gmail for a reply, parses the selected job numbers, runs `cv-tailoring-agent` per job, sends a completion email |
 
 **Flow:** scheduler → `run-job-search.ps1` → email to user → user replies with numbers → `check-reply.py` picks it up → `cv-tailoring-agent` runs per selection → completion email sent.

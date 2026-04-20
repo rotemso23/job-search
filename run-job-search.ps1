@@ -29,8 +29,15 @@ Follow the full job-search-strategy playbook (all phases).
 Save results to job-results/${date}_search.md and append all new jobs to the Excel tracker.
 "@
 
-$claudeOutput = & claude --dangerously-skip-permissions -p $prompt 2>&1
-$claudeOutput | Out-File -FilePath $debugLog -Encoding UTF8 -Append
+$writer = [System.IO.StreamWriter]::new($debugLog, $true, [System.Text.Encoding]::UTF8)
+try {
+    & claude --dangerously-skip-permissions -p $prompt 2>&1 | ForEach-Object {
+        $writer.WriteLine($_)
+        $writer.Flush()
+    }
+} finally {
+    $writer.Close()
+}
 
 Write-Host "[$(Get-Date -Format 'HH:mm:ss')] Agent finished."
 

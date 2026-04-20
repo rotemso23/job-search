@@ -8,24 +8,25 @@ $searchAction = New-ScheduledTaskAction `
     -Execute "powershell.exe" `
     -Argument "-NonInteractive -WindowStyle Hidden -ExecutionPolicy Bypass -File `"$workDir\run-job-search.ps1`""
 
-$searchTrigger  = New-ScheduledTaskTrigger -Daily -At "08:00"
+$searchTrigger  = New-ScheduledTaskTrigger -Daily -At "08:15"
 $searchSettings = New-ScheduledTaskSettingsSet `
     -StartWhenAvailable `
     -RunOnlyIfNetworkAvailable `
-    -ExecutionTimeLimit (New-TimeSpan -Hours 2)
+    -ExecutionTimeLimit (New-TimeSpan -Hours 2) `
+    -WakeToRun
 $searchSettings.DisallowStartIfOnBatteries = $false
 $searchSettings.StopIfGoingOnBatteries = $false
 
 Register-ScheduledTask `
     -TaskName    "DailyJobSearch" `
-    -Description "Runs Claude job-search-agent daily at 08:00 and emails results" `
+    -Description "Runs Claude job-search-agent daily at 08:15 and emails results" `
     -Action      $searchAction `
     -Trigger     $searchTrigger `
     -Settings    $searchSettings `
     -RunLevel    Highest `
     -Force
 
-Write-Host "Task 1 registered: DailyJobSearch (runs daily at 08:00)"
+Write-Host "Task 1 registered: DailyJobSearch (runs daily at 08:15)"
 
 # ── Task 2: Hourly reply checker (starts at 09:00, repeats every hour) ────────
 $python = (Get-Command python -ErrorAction SilentlyContinue).Source

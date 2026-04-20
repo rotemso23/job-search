@@ -3,7 +3,7 @@ check-reply.py
 Runs every hour via Task Scheduler.
 Checks Gmail for a reply to today's job search email, runs the CV tailor
 agent for each selected job, then sends a completion email.
-Stops processing after 07:00 the next day (1 hour before the next search runs).
+Stops processing after 07:15 the next day (1 hour before the next search runs).
 """
 
 import imaplib
@@ -42,9 +42,9 @@ def done_flag_path(date):
 
 
 def past_stop_time(date):
-    """True if it's past 07:00 the next day (1 hour before the next search runs)."""
+    """True if it's past 07:15 the next day (1 hour before the next search runs)."""
     next_day = datetime.date.fromisoformat(date) + datetime.timedelta(days=1)
-    stop_dt  = datetime.datetime.combine(next_day, datetime.time(7, 0))
+    stop_dt  = datetime.datetime.combine(next_day, datetime.time(7, 15))
     return datetime.datetime.now() >= stop_dt
 
 
@@ -177,7 +177,7 @@ def main():
         return
 
     if past_stop_time(date):
-        print(f"Past stop time for {date} (08:00 next day). Exiting.")
+        print(f"Past stop time for {date} (07:15 next day). Exiting.")
         return
 
     print(f"Checking Gmail for reply to {date} job search email...")

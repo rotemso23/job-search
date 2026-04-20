@@ -55,7 +55,7 @@ In addition to manual use, the workspace includes a fully autonomous daily loop 
 |------|------|
 | `setup-scheduler.ps1` | Run once (as Administrator) to register the scheduled tasks |
 | `run-job-search.ps1` | Runs daily at 08:15 — executes `job-search-agent` and emails results with a numbered quick-apply list |
-| `check-reply.py` | Runs hourly from 09:30 — checks Gmail for your reply, parses selected job numbers, runs `cv-tailoring-agent` per job, sends a completion email |
+| `check-reply.py` | Runs hourly from 09:00 — checks Gmail for your reply, parses selected job numbers, runs `cv-tailoring-agent` per job, sends a completion email |
 
 ### Flow
 
