@@ -66,6 +66,10 @@ scheduler
   → check-reply.py → cv-tailoring-agent per selection → completion email
 ```
 
+### Debug Logging
+
+`run-job-search.ps1` streams Claude's output in real time using `--output-format stream-json --verbose`. The log at `job-results/YYYY-MM-DD_debug.log` fills incrementally during the run — tail it to monitor progress. Tool calls appear as `[TOOL] ToolName: {input}` lines.
+
 ### Setup
 
 1. Store your Gmail app password in `.credentials/gmail.secret` (plain text).

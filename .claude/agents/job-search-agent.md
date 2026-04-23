@@ -1,7 +1,7 @@
 ---
 name: job-search-agent
 description: "Use this agent when you want to search for job postings that match your CV, skills, and preferences — filtering by role, location, keywords, and seniority."
-tools: Bash, Glob, Grep, Read, WebFetch, WebSearch, Skill, TaskCreate, TaskGet, TaskUpdate, TaskList, EnterWorktree, CronCreate, CronDelete, CronList, ToolSearch, mcp__ide__getDiagnostics, mcp__ide__executeCode
+tools: Bash, Glob, Grep, Read, Write, Edit, WebFetch, WebSearch
 model: sonnet
 color: blue
 memory: project

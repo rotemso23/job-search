@@ -1,7 +1,7 @@
 ---
 name: jd-analyzer-agent
 description: "Use this agent when a user provides a job description and needs it analyzed to extract required skills, preferred skills, real role priorities, and ATS keywords."
-tools: Glob, Grep, Read, WebFetch, WebSearch
+tools: Glob, Grep, Read, WebFetch, WebSearch, Write
 model: sonnet
 color: yellow
 memory: project

@@ -147,6 +147,25 @@ def run_cv_tailor(title, section):
         raise RuntimeError(output[-300:])
 
 
+def collect_jd_warnings(work_dir):
+    """Return warning lines from any CV/*/jd-analysis.md files modified today."""
+    today = datetime.date.today()
+    warnings = []
+    cv_dir = work_dir / "CV"
+    if not cv_dir.exists():
+        return warnings
+    for analysis_file in cv_dir.glob("*/jd-analysis.md"):
+        mtime = datetime.date.fromtimestamp(analysis_file.stat().st_mtime)
+        if mtime != today:
+            continue
+        text = analysis_file.read_text(encoding="utf-8")
+        for line in text.splitlines():
+            if line.startswith("⚠️ WARNING: JD not fully read"):
+                warnings.append(f"  - {analysis_file.parent.name}: {line.strip()}")
+                break
+    return warnings
+
+
 def send_email(subject, body):
     msg = MIMEText(body, "plain", "utf-8")
     msg["Subject"] = subject
@@ -234,6 +253,12 @@ def main():
         for t, reason in failed:
             lines.append(f"  - {t}")
             lines.append(f"    Reason: {reason}")
+
+    jd_warnings = collect_jd_warnings(WORK_DIR)
+    if jd_warnings:
+        lines.append("\n⚠️ JD Read Warnings — these analyses used partial content:")
+        lines.extend(jd_warnings)
+        lines.append("Consider pasting the full JD manually and re-running tailoring for these jobs.")
 
     send_email(
         subject=f"CV Tailoring Done - {date}",

@@ -7,11 +7,14 @@ description: "Teaches the cv-tailoring-agent how to adapt a CV to a specific job
 
 This playbook covers JD-driven CV tailoring only. Follow phases 1–7 in order.
 
-| Mode | When to use |
-|------|------------|
-| **JD Tailoring** (Phases 1–8) | User wants the CV adapted to a specific job posting |
+---
+
+## Automated Mode Rules
+
+When running as part of the automated pipeline (triggered by `check-reply.py`, not by a live user), **never block or wait for input.** These rules override **every** "ask the user", "stop", and "stop and ask" instruction anywhere in this playbook. Flagging issues in the output file (warnings, banners) is always allowed and encouraged.
 
 ---
+
 
 ## Phase 1 — Inputs Checklist (JD Tailoring mode)
 
@@ -21,9 +24,15 @@ Follow this sequence in order — do not skip ahead:
 Load from memory if available. If not, ask: "Please share your CV — paste the text or upload the file."
 
 **Step 2 — Check for existing JD analysis**
-If the company name is known, look for `C:\Users\משתמש\Desktop\job search\CV\[Company Name]\jd-analysis.md`.
-- If the file **exists** → load it and skip to Phase 2. Do not re-fetch or re-analyze.
-- If the file **does not exist** → continue to Step 3.
+If the company name is known, look for an existing analysis. Check in this order (most specific first):
+1. `CV\[Company Name] - [Job Title]\jd-analysis.md` — exact match for this company + role
+2. `CV\[Company Name]\jd-analysis.md` — only if step 1 does not exist
+
+Use the first one found. If both exist, always use #1 (the specific one). Note the folder path — it will be reused in Phase 7.
+
+- If a file is found → load it and skip to Phase 2. Do not re-fetch or re-analyze.
+  - Check if the file starts with a `⚠️ WARNING: JD not fully read` banner. If it does, carry that warning forward — it must appear at the top of `recommendations.md` as well.
+- If neither exists → continue to Step 3.
 
 **Step 3 — Verify the full JD is available**
 Before running any analysis, confirm you have the complete job description text:
@@ -33,7 +42,9 @@ Before running any analysis, confirm you have the complete job description text:
 - Only proceed once the full JD is confirmed complete.
 
 **Step 4 — Run JD analysis**
-Run the `jd-analyzer-strategy` playbook to extract must-haves, hidden priorities, tech stack, and ATS keywords. The analyzer saves the result to `CV\[Company Name]\jd-analysis.md` automatically.
+Run the `jd-analyzer-strategy` playbook to extract must-haves, hidden priorities, tech stack, and ATS keywords. The analyzer determines and creates the folder automatically — note the folder path it uses for Phase 7.
+
+After the analyzer completes, check the saved `jd-analysis.md` for a `⚠️ WARNING: JD not fully read` banner. If present, carry it forward — it must appear at the top of `recommendations.md` as well.
 
 ---
 
@@ -45,7 +56,7 @@ Extract from the CV:
 |---------|---------------|
 | Current/target job title | Match or bridge to JD title |
 | Skills and technologies | Map against JD must-haves and nice-to-haves |
-| Work experience bullets | Primary rewrite targets |
+| Work experience, thesis, and project bullets | Primary rewrite targets |
 | Achievements with metrics | Highest-value content — preserve and surface |
 | Education and certifications | Check against JD credentials |
 | Summary / objective (if present) | First rewrite target — highest recruiter visibility |
@@ -69,7 +80,7 @@ Before rewriting, map CV content against JD requirements:
 **Honest gap rule:** If the user genuinely lacks a must-have skill, flag it clearly:
 > ⚠️ **Gap:** JD requires [skill] — not found in CV. Do not add this unless the user confirms they have it.
 
-Never invent experience. Never upgrade "familiar with" to "expert in" unless the user confirms it.
+Never invent experience. Never upgrade "familiar with" to "expert in" unless the user confirms it. Never infer skills from context — if a skill is not explicitly named in the CV, do not add it, even if the project or thesis work implies it (e.g., do not add "CNN" because the thesis involved deep learning).
 
 ---
 
@@ -95,7 +106,7 @@ Reason: [what changed and why]
 
 ## Phase 5 — Bullet Rewriting
 
-Work through each experience section. For each bullet:
+Work through each experience, thesis, and project section. For each bullet:
 
 **Step 1 — Relevance score**
 - High: directly matches a JD must-have → rewrite to maximize keyword match
@@ -137,20 +148,21 @@ Keywords added: [list]
 
 ### Saving the Recommendations
 
-1. **Create a company folder** inside the CV directory:
-   `C:\Users\משתמש\Desktop\job search\CV\[Company Name]\`
-   Use the exact company name from the JD. If the company name is unknown, use the job title instead.
+1. **Use the folder established in Phase 1** (either found in Step 2 or created by the jd-analyzer in Step 4). Do not create a new folder.
 
 2. **Save a recommendations file:**
-   `C:\Users\משתמש\Desktop\job search\CV\[Company Name]\recommendations.md`
+   `C:\Users\משתמש\Desktop\job search\CV\[folder from Phase 1]\recommendations.md`
 
 3. **Confirm to the user:**
-   > Recommendations saved to `CV\[Company Name]\recommendations.md`
+   > Recommendations saved to `CV\[folder from Phase 1]\recommendations.md`
 
 ### Recommendations File Format
 
 ```markdown
 # CV Tailoring Recommendations — [Company Name] / [Job Title]
+
+⚠️ WARNING: JD not fully read — [reason]. Analysis is based on partial content and may be incomplete.
+(Include this line only if the warning was present in jd-analysis.md. Omit otherwise.)
 
 **Job Link:** [URL to the job posting]
 
@@ -170,7 +182,7 @@ Keywords added: [list]
   **Reason:** [why it hurts more than helps for this role]
 
 ## Skills Section
-- **Add:** [skill / technology] — [where to place it]
+- **Promote:** [skill / technology already in CV] — [where to move it for better visibility]
 - **Remove:** [skill] — [reason]
 - **Reorder:** [new priority order for this role]
 
@@ -191,9 +203,8 @@ Tier 2 (high value):  [term ✓/✗] [term ✓/✗] ...
 
 ## Rules
 
-- Never fabricate experience, skills, titles, dates, or metrics
+- Never fabricate or infer experience, skills, titles, dates, or metrics — only use what is explicitly stated in the CV
 - Never upgrade a skill level without user confirmation
 - Always show before/after for every rewrite — never silently change content
 - If the user's CV is a poor match for the role (< 40% must-haves met), say so directly before tailoring — don't paper over a bad fit
 - Preserve the user's voice — don't make all bullets sound identical
-- If the user asks to add a skill they don't have, refuse and explain why it backfires at interview

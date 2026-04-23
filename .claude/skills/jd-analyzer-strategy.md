@@ -9,6 +9,24 @@ Before analyzing any JD, you must first obtain clean, complete job description t
 
 ---
 
+## Automated Mode Rules
+
+When running as part of the automated pipeline (triggered by `check-reply.py`, not by a live user), **never block or wait for input.** These rules override **every** "ask the user", "stop and ask", and "tell the user" instruction anywhere in this playbook. Flagging issues in the output file (warnings, banners) is always allowed and encouraged.
+
+| Situation | Automated behavior |
+|-----------|-------------------|
+| JD fetch truncated or login wall | Proceed with partial content |
+| Fetch returns 403 / blank page | Proceed with LinkedIn snippet from the results file |
+| Pre-analysis checklist (Phase 4) fails | Proceed if any usable content exists; skip only if content is completely blank |
+
+**Whenever the JD was not fully read, add this banner at the very top of `jd-analysis.md`, before all other content:**
+```
+⚠️ WARNING: JD not fully read — [reason: truncated / login wall / fetch failed].
+Analysis is based on partial content and may be incomplete.
+```
+
+---
+
 ## Phase 1 — Identify Input Type
 
 The user will provide one of:
@@ -24,7 +42,7 @@ The user will provide one of:
 ### Phase 1a — Resolving a job number reference
 
 1. List files in `job-results/` and identify the most recent `YYYY-MM-DD_search.md` file (sort by date descending).
-2. Read that file and find the job entry matching the requested number (jobs are numbered sequentially in the results file).
+2. Read that file and find the job entry matching the requested number. Jobs have no printed numbers — count the `### ` headings in order (1-indexed), skipping any "Job X of Y" counter lines.
 3. Extract the job's **URL** and any **pasted/cached description** from the results entry.
 4. If a URL is present, proceed to Phase 2 to fetch the full JD.
 5. If the results file contains the full JD text already, use it directly and skip to Phase 3.
@@ -98,7 +116,7 @@ Before handing the cleaned text to the analysis framework, confirm:
 - [ ] Text is not from a different job than the one requested (check title + company match if URL was provided)
 - [ ] No obvious truncation or critical missing section
 
-If any check fails, flag it to the user before proceeding with analysis.
+If any check fails, flag it and proceed with analysis on whatever content is available.
 
 ---
 
@@ -135,7 +153,7 @@ Employers often bury their real priorities. Surface them with these signals:
 **Positioning** — the first 3 bullets in any list carry more weight than later items. The first requirement listed is usually the most critical.
 
 **Verb intensity** — grade the language:
-- "Expert in", "deep knowledge of", "mastery of" → senior/critical requirement
+- "Expert in", "deep knowledge of", "mastery of" → critical requirement
 - "Proficient in", "experience with", "strong background in" → standard requirement
 - "Familiar with", "exposure to", "understanding of" → junior/optional signal
 
@@ -204,7 +222,6 @@ Tier 3 (context):     `term` `term` `term`
 
 **Rules:**
 - Extract the exact string as it appears in the JD — do not paraphrase
-- If the JD uses both "ML" and "machine learning", list both
 - Do not include terms that appear only in boilerplate company descriptions (unless also in requirements)
 
 ---
@@ -213,15 +230,19 @@ Tier 3 (context):     `term` `term` `term`
 
 After completing Phases 5–8, save the full analysis to a file:
 
-1. **Create a company folder** (if it doesn't already exist):
-   `C:\Users\משתמש\Desktop\job search\CV\[Company Name]\`
-   Use the exact company name from the JD. If unknown, use the job title.
+1. **Create a folder** for this analysis:
+   - If `CV\[Company Name]\` does not exist → create it and use it.
+   - If `CV\[Company Name]\` already exists → create `CV\[Company Name] - [Job Title]\` instead, to avoid overwriting a previous analysis for the same company.
+   - If the company name is unknown, use the job title as the folder name.
 
 2. **Save the analysis as:**
-   `C:\Users\משתמש\Desktop\job search\CV\[Company Name]\jd-analysis.md`
+   `C:\Users\משתמש\Desktop\job search\CV\[folder from step 1]\jd-analysis.md`
 
 3. **File format:**
 ```markdown
+⚠️ WARNING: JD not fully read — [reason]. Analysis is based on partial content and may be incomplete.
+(Include this line only if the JD was not fully read. Omit otherwise.)
+
 # JD Analysis — [Company Name] / [Job Title]
 
 **Source:** [URL or "user-provided text"]
@@ -248,13 +269,13 @@ Tier 3 (context):     `term` `term`
 ```
 
 4. **Confirm to the user:**
-   > Analysis saved to `CV\[Company Name]\jd-analysis.md`
+   > Analysis saved to `CV\[folder from step 1]\jd-analysis.md`
 
 ---
 
 ## Rules
 
-- Never analyze a blank, near-blank, or truncated JD — stop and ask the user to paste the full text before proceeding
+- Never analyze a completely blank JD — write the reason to the `⚠️ WARNING` banner in `jd-analysis.md` and stop. For truncated or near-blank JDs, proceed with whatever is available and flag it in the same banner.
 - Never guess at missing requirements — only extract what's explicitly present
 - If the URL and pasted text conflict (e.g., different roles), ask the user which is correct
 - Always note the source of the JD text in your output (URL fetched / user-provided text / partial fetch)

@@ -31,9 +31,26 @@ Save results to job-results/${date}_search.md and append all new jobs to the Exc
 
 $writer = [System.IO.StreamWriter]::new($debugLog, $true, [System.Text.Encoding]::UTF8)
 try {
-    & claude --dangerously-skip-permissions -p $prompt 2>&1 | ForEach-Object {
-        $writer.WriteLine($_)
-        $writer.Flush()
+    & claude --dangerously-skip-permissions -p $prompt --output-format stream-json --verbose 2>&1 | ForEach-Object {
+        $line = $_
+        try {
+            $obj = $line | ConvertFrom-Json
+            # final result
+            if ($obj.type -eq "result" -and $obj.result) {
+                $writer.WriteLine($obj.result); $writer.Flush()
+            }
+            # intermediate assistant text
+            $text = $obj.message.content | Where-Object { $_.type -eq "text" } | Select-Object -ExpandProperty text
+            if ($text) { $writer.WriteLine($text); $writer.Flush() }
+            # tool calls
+            $tools = $obj.message.content | Where-Object { $_.type -eq "tool_use" }
+            foreach ($tool in $tools) {
+                $toolInput = $tool.input | ConvertTo-Json -Compress
+                $writer.WriteLine("[TOOL] $($tool.name): $toolInput"); $writer.Flush()
+            }
+        } catch {
+            $writer.WriteLine("[RAW] $line"); $writer.Flush()
+        }
     }
 } finally {
     $writer.Close()
@@ -50,12 +67,12 @@ if (Test-Path $logFile) {
 
 # -- 3. Build numbered quick-apply header -------------------------------------
 $jobs = @()
-$inJobListings = $false
 foreach ($line in ($body -split "`n")) {
-    if ($line -match '^## Job Listings') { $inJobListings = $true; continue }
-    if ($line -match '^## '             ) { $inJobListings = $false }
-    if ($inJobListings -and $line -match '^### (.+)$') {
-        $jobs += $Matches[1]
+    if ($line -match '^### (.+)$') {
+        $title = $Matches[1].Trim()
+        if ($title -notmatch '^Job \d+ of \d+$') {
+            $jobs += $title
+        }
     }
 }
 

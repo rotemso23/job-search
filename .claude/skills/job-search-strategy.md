@@ -5,13 +5,13 @@ description: "Strategic playbook for the job-search-agent — teaches how to sea
 
 # Job Search Strategy Playbook
 
-You are executing a structured job search. Follow this playbook to maximize result quality and coverage.
+You are executing a structured job search. Follow this playbook in order. Do not skip phases or reorder them.
 
 ---
 
 ## Phase 1 — Profile Extraction (Before You Search)
 
-Before opening any job board, read the CV from `Rotem Solomon CV.md` (in the repo root) and extract from it and the user's request:
+Before opening any job board, read the CV from `Rotem Solomon CV.md` (in the repo root) and extract:
 
 | Signal | Where to find it | Why it matters |
 |--------|-----------------|----------------|
@@ -21,199 +21,208 @@ Before opening any job board, read the CV from `Rotem Solomon CV.md` (in the rep
 | Location constraints | User request | Filters geographically |
 | Must-haves / deal-breakers | User request or memory | Eliminates waste upfront |
 
-If **any** of these are missing or ambiguous, **ask before searching**.
+If running interactively and anything is ambiguous, ask before searching. In automated mode, proceed with the profile from the CV and memory — do not pause.
 
 ---
 
 ## Phase 2 — Query Construction
 
-### Title Variants
-Never search a single title. Generate 3–5 equivalent titles:
-- Example: "Data Engineer" → also search "Analytics Engineer", "ETL Developer", "Data Platform Engineer", "Big Data Engineer"
-- Use the user's exact title from CV as one variant — it likely appears in JDs verbatim
+### Target Job Titles for Rotem Solomon
 
-### Boolean Operators (use when the platform supports them)
-```
-"data engineer" AND (Python OR Spark) NOT intern
-"product manager" AND ("B2B" OR "SaaS") AND remote
-```
+There are **3 fixed groups**. Fetch all 3 every session — **1 WebFetch per group** on LinkedIn's own search UI.
 
-### Keyword Layering Strategy
-- **Layer 1 (broad):** title only → captures volume
-- **Layer 2 (medium):** title + primary skill → improves precision
-- **Layer 3 (narrow):** title + primary skill + secondary skill → highest precision, lowest volume
+**Group 1 — AI/ML (core):**
+- Algorithm Engineer / Algorithm Developer
+- Machine Learning Engineer / ML Engineer
+- AI Engineer / AI/ML Engineer
+- Research Engineer / Deep Learning Engineer
+- Data Scientist
 
-Run at least Layer 1 and Layer 2. Use Layer 3 only if Layer 2 returns 50+ results.
+**Group 2 — Signal Processing & Biomedical:**
+- Biomedical Algorithm Engineer
+- Signal Processing Engineer
+- Medical AI Engineer / Healthcare AI Engineer
+- Medical Imaging Engineer
+
+**Group 3 — LLM / Agents:**
+- LLM Engineer / AI Agent Developer / GenAI Engineer
+
+### Query Strategy
+Use title-only (broad) queries. Do not add skill keywords; filtering by skill happens in Phase 7 scoring after reading the JD.
 
 ---
 
-## Phase 3 — Platform Coverage
+## Phase 3 — Search LinkedIn
 
-Search platforms in this priority order:
+**Use LinkedIn's own job search UI via WebFetch** — this applies LinkedIn's own "Past month" date filter, giving genuinely fresh results instead of Google's stale index.
 
-| Priority | Platform | Best for |
-|----------|----------|---------|
-| 1 | LinkedIn Jobs | Broadest corporate coverage; supports Boolean |
-| 2 | Indeed | High volume, good for SMBs; use `"exact phrase"` |
-| 3 | Glassdoor | Adds salary data context |
-| 4 | Wellfound (AngelList) | Startups, early-stage companies |
-| 5 | company career pages | Roles not posted on aggregators |
-| 6 | Stack Overflow Jobs / Dice | Developer-specific roles |
+For each of the 3 groups, WebFetch the following URL (replace the `keywords` value per group):
 
-**Minimum coverage:** hit at least 2 platforms per search session. Never rely on one source alone.
+**Group 1:**
+```
+https://www.linkedin.com/jobs/search/?keywords=%22algorithm+engineer%22+OR+%22machine+learning+engineer%22+OR+%22AI+engineer%22+OR+%22deep+learning+engineer%22+OR+%22data+scientist%22&location=Israel&f_TPR=r2592000
+```
 
-### Platform-Specific Tips
-- **LinkedIn:** Use "Date posted: Past month" filter. Filter by "Easy Apply" only if volume is low.
-- **Indeed:** Append `posted:14` to URL or use "Date posted" filter. Avoid "Sponsored" spam at top.
-- **Wellfound:** Filter by "Job type: Full-time" and funding stage if relevant.
-- **Company pages:** Check companies from user's target list or industry leaders first.
+**Group 2:**
+```
+https://www.linkedin.com/jobs/search/?keywords=%22signal+processing+engineer%22+OR+%22biomedical+algorithm%22+OR+%22medical+AI+engineer%22+OR+%22medical+imaging+engineer%22&location=Israel&f_TPR=r2592000
+```
+
+**Group 3:**
+```
+https://www.linkedin.com/jobs/search/?keywords=%22LLM+engineer%22+OR+%22AI+agent+developer%22+OR+%22generative+AI+engineer%22+OR+%22GenAI+engineer%22&location=Israel&f_TPR=r2592000
+```
+
+(`f_TPR=r2592000` = Past 30 days. `location=Israel` applies LinkedIn's location filter.)
+
+- From each WebFetch response, extract: job title, company, location, posting date, and `linkedin.com/jobs/view/...` URL.
+- Do **not** fetch company career pages.
+- Do **not** try other platforms at this stage.
+- **Hard limit: 1 WebFetch per group = 3 WebFetch calls total in this phase.**
+- **If a LinkedIn WebFetch returns a login wall or no job listings** (LinkedIn may block unauthenticated access), note the failure and fall back to WebSearch for that group: `"<titles>" Israel site:linkedin.com/jobs/view 2026`. A WebSearch fallback counts toward the Phase 5 budget.
 
 ---
 
 ## Phase 4 — Freshness & Deduplication
 
-- **Default window:** last 30 days. Flag anything older if included.
-- **Deduplication rule:** if the same role appears on 2+ platforms, list it once (prefer LinkedIn link if available, else the source with most detail).
-- **Cross-session deduplication (MANDATORY — do this before scoring):**
-  1. Read **every** file in `job-results/` using the Read tool.
-  2. Build a seen-jobs list: extract every `### [Job Title] at [Company]` heading from those files.
-  3. For each candidate job you found today, check it against the seen-jobs list. Match on company name + job title (case-insensitive, ignore minor wording differences like "—" vs "-" or word order shifts).
-  4. **Discard any match.** Do not include it in results, scoring, or the email. Do not show the user a job they have already been shown.
-  5. If discarding a job leaves you with fewer than 5 results, run an additional search pass before finalizing.
-- **Expired postings:** if a link 404s or shows "no longer accepting applications", discard it — never include it.
+1. **Freshness:** default window is last 30 days. Flag anything older.
+2. **Same-session dedup:** if the same role appears in multiple search results, keep it once.
+3. **Cross-session dedup (MANDATORY):**
+   - Read `job-results/seen-jobs.md` — the cumulative list of all previously shown jobs.
+   - Each entry is in format `Job Title | Company` or `Job Title | Company | YYYY-MM-DD`.
+   - **Ignore entries older than 60 days** (entries with a date more than 60 days ago are treated as fresh — they may be re-shown). Entries with no date are always treated as seen.
+   - Discard any job that matches a non-expired entry on company name + job title (case-insensitive).
+   - Do not include, score, or show any non-expired previously seen job.
+4. **Expired postings:** if a listing is marked closed or 404s, discard it.
 
 ---
 
-## Phase 4.5 — Deep JD Fetch (Before Scoring)
+## Phase 5 — Iteration (if results are thin)
 
-LinkedIn blocks unauthenticated access — search results only return short snippets, not the full JD. Before scoring any job, attempt to get the full job description:
+**This phase MUST complete before Phase 6 begins. Never start fetching individual JDs until all searching and deduplication is fully done.**
 
-**For each candidate job found via search:**
-1. Try `WebFetch` on the LinkedIn URL — if it returns content (some public listings work), use it.
-2. If LinkedIn blocks: search `"[Job Title] [Company] site:[company].com careers"` to find the same role on the company's career page.
-3. Try `WebFetch` on the company career page URL.
-4. If both fail: try other job boards — search `"[Job Title] [Company] site:glassdoor.com OR site:comeet.com OR site:greenhouse.io OR site:lever.co"`.
+Check: how many new (non-deduped) jobs survived Phase 4?
 
-**Scoring rule:** Only score a job ⭐⭐⭐ if you successfully fetched real JD content. If you only have a search snippet, cap the score at ⭐⭐ and note "JD not fully read" in the output.
-
-**Efficiency:** Do this for the top 15–20 candidates. Skip deep fetch for roles already eliminated by hard filters.
+- **5 or more:** proceed to Phase 6.
+- **Fewer than 5 and LinkedIn WebFetch worked:** repeat all 3 LinkedIn WebFetch calls with a 60-day window (`f_TPR=r5184000` instead of `r2592000`). Apply Phase 4 dedup, merge survivors. Proceed to Phase 6.
+- **Fewer than 5 and LinkedIn WebFetch was blocked for all groups:** fall back to WebSearch for all 3 groups using `site:linkedin.com/jobs/view`: one WebSearch per group, same title variants, add `2026` for freshness bias. Apply Phase 4 dedup, merge survivors. Proceed to Phase 6.
+- Do not run more searches after the iteration step regardless of final count.
+- **Never return to Phase 5 after Phase 6 has started.** If results are still thin after Phase 6 begins, proceed anyway — do not go back and search more.
 
 ---
 
-## Phase 5 — Filtering & Scoring
+## Phase 6 — JD Fetch (targeted WebFetch only)
 
-Apply filters in this order to avoid discarding too early:
+**HARD LIMIT: Exactly 10 WebFetch calls in this entire phase. Count every fetch. Stop immediately when you reach 10, even if more jobs remain.**
+
+1. **Snippet-rank the survivors** from Phase 4 without fetching anything. Score each job 1–3 on the LinkedIn snippet alone using these signals:
+   - Title closely matches Rotem's target titles → +1
+   - Snippet mentions junior / entry-level / fresh graduate → +1
+   - Location is Tel Aviv center → +1 (Haifa or periphery → -1)
+
+2. **WebFetch the top 10 only** by snippet score, using their direct `linkedin.com/jobs/view/...` URLs. Fetch them one-by-one and track your count: after fetch #10, move to Phase 7 — no exceptions.
+
+3. **All other jobs** (ranked below top 10, or beyond the 10-fetch limit) are not fetched. They proceed to Phase 7 with snippet only and are capped at ⭐⭐.
+
+4. **Rules:**
+   - **Never use WebSearch to look up a company or job** — queries like `"company name" "job title" requirements` are forbidden.
+   - If a URL 404s or returns no content, skip it — it still counts toward the 10-fetch limit.
+   - **Do not fetch more than 10 JDs total across Phase 6, including any retries or replacements.**
+
+---
+
+## Phase 7 — Filtering & Scoring
+
+Apply to all surviving jobs (using full JD where fetched, snippet otherwise):
 
 1. **Hard eliminators** (remove immediately):
-   - Wrong seniority (e.g., intern/junior when user is senior)
+   - Requires 3+ years industry experience with no junior track
    - Wrong location with no remote option
-   - Requires visa sponsorship the user can't fulfill
-
 
 2. **Soft filters** (flag, don't remove):
    - Missing 1–2 preferred skills → keep, note as gap
    - Slightly off industry → keep if transferable
 
-3. **Scoring** (based on actual JD content from Phase 4.5):
+3. **Scoring:**
 
-   Before scoring, split the JD requirements into two lists:
-   - **Must-haves:** anything the JD marks as required, mandatory, or lists without qualification
-   - **Nice-to-haves:** anything marked as "advantage", "bonus", "preferred", or "plus"
-
-   Count how many must-haves are genuinely present in the CV (not inferred, not adjacent — actually present).
+   Split JD requirements into must-haves and nice-to-haves. Count how many must-haves are genuinely present in the CV.
 
    | Rating | Rule |
    |--------|------|
-   | ⭐⭐⭐ Strong Match | ≥80% of must-haves covered AND ≤1 must-have tool/skill absent AND full JD read |
-   | ⭐⭐ Good Match | 60–79% of must-haves covered OR exactly 2 must-have tools absent OR JD only partially read |
-   | ⭐ Potential Match | 40–59% of must-haves covered OR 3+ must-have tools absent |
+   | ⭐⭐⭐ Strong Match | ≥80% of must-haves covered AND ≤1 must-have absent AND full JD read |
+   | ⭐⭐ Good Match | 60–79% of must-haves covered OR exactly 2 must-haves absent OR JD only partially read |
+   | ⭐ Potential Match | 40–59% of must-haves covered OR 3+ must-haves absent |
 
-   **Hard cap rules (cannot be overridden by keyword overlap):**
-   - If 3 or more explicit must-have tools or domain skills are absent from the CV → cap at ⭐ regardless of overall keyword match
-   - If the JD requires a specific domain (e.g. NLP, computer vision, embedded) and the CV has no project or work experience in that domain → cap at ⭐⭐ maximum
-   - If the full JD was not read → cap at ⭐⭐ maximum
+   **Hard cap rules:**
+   - 3+ explicit must-have tools/skills absent → cap at ⭐ regardless of keyword overlap
+   - JD requires a specific domain the CV has no experience in → cap at ⭐⭐ max
+   - Full JD not read → cap at ⭐⭐ max
 
-**Target output:** 10–20 results. If under 10, widen the query.
-
----
-
-## Phase 6 — Iteration Rules
-
-If initial results are poor:
-
-| Problem | Fix |
-|---------|-----|
-| Too few results | Broaden title variants, drop secondary keyword layer, extend date window to 60 days |
-| Too many irrelevant | Add a must-have keyword, narrow to specific industry |
-| Duplicates dominate | Switch to a new platform or company career pages |
-| All roles too senior/junior | Adjust seniority filter; try "mid-level" vs. "senior" keyword swap |
-
-Never return fewer than 5 results without explaining why and asking the user to loosen constraints.
+**Target output:** 4–8 results. If under 4, include what was found, note the shortage in the summary, and suggest expanding the search scope for the next session.
 
 ---
 
-## Phase 7 — Output Assembly
+## Phase 8 — Output Assembly
 
-For each job include:
+For each job:
 ```
 ### [Job Title] at [Company]
 - **Match**: ⭐⭐⭐ / ⭐⭐ / ⭐
-- **JD Source**: [LinkedIn snippet only | Company career page | Glassdoor/other board]
+- **JD Source**: [Full JD read | LinkedIn snippet only]
 - **Location**: [City | Remote | Hybrid]
 - **Seniority**: [Level]
 - **Posted**: [date or "~X days ago"]
 - **Link**: [URL]
 - **Key Requirements**: [3–5 bullets from the JD]
-- **Why It Matches**: [1–2 sentences tied to user's CV]
+- **Why It Matches**: [1–2 sentences tied to CV]
 - **Gaps**: [specific missing skills, or "None identified"]
 ```
 
-End with a **Search Summary**:
-- Platforms searched
-- Total found before filtering
-- Total after filtering
-- Breakdown by match level (⭐⭐⭐ / ⭐⭐ / ⭐)
-- Most common filter-out reasons
-- Suggested next search iteration (if results were thin)
+End with a **Search Summary** using `####` (not `###`) for all subsection headers inside it:
+```
+## Search Summary
+
+#### Queries Used
+...
+
+#### Counts
+...
+
+#### Filter-Out Reasons
+...
+
+#### Suggested Adjustments for Next Session
+...
+```
+
+**Important:** Use `####` for Search Summary subsections. Only actual job entries use `###`. This keeps the email quick-apply list clean.
 
 ---
 
-## Phase 8 — Save Results
-
-After presenting results to the user, complete both steps:
+## Phase 9 — Save Results
 
 ### Step 1 — Markdown session log
-Save the full output to:
-`job-results/YYYY-MM-DD_search.md`
+Save the full output to `job-results/YYYY-MM-DD_search.md`.
 
-Include: all job listings (same format as Phase 7), plus the Search Summary (platforms, queries, match breakdown).
+### Step 2 — Update seen-jobs
+Append all new jobs shown today to `job-results/seen-jobs.md` in format `[Job Title] | [Company] | YYYY-MM-DD` (one per line, using today's date).
 
-### Step 2 — Excel tracker
-Use the helper script at `job-results/excel_helper.py`. Do NOT write inline openpyxl code.
-
-**Command:**
+### Step 3 — Excel tracker
 ```bash
 python "job-results/excel_helper.py" '<json>'
 ```
 
-**JSON format** — pass a JSON array of job objects:
-```json
-[
-  {"title": "Algorithm Engineer", "company": "Taboola", "location": "Tel Aviv (Hybrid)", "match": "good", "url": "https://..."},
-  {"title": "Data Scientist", "company": "Wix", "location": "Tel Aviv", "match": "strong", "url": "https://..."}
-]
-```
-
-**`match` values:** `"strong"` (⭐⭐⭐), `"good"` (⭐⭐), `"potential"` (⭐)
-
-The script handles all formatting, colors, borders, hyperlinks, and freeze panes automatically. It appends to existing data and creates the file if it doesn't exist.
+JSON array with fields: `title`, `company`, `location`, `match` (`strong`/`good`/`potential`), `url`.
 
 ---
 
 ## Rules (Non-Negotiable)
 
+- **You are the job-search-agent. Execute all work directly — never spawn another agent or sub-agent.**
 - Never fabricate a job posting or URL
 - Never include a posting you haven't verified exists at the link
 - Never skip Phase 1 — ambiguous profiles produce useless results
-- If the user's request is vague (e.g., "find me jobs"), ask for role and location before proceeding
 - Always note your search queries used, so the user can replicate or refine them
+- **Never use WebSearch to look up an individual company or job.** Broad LinkedIn searches only. JD details come from WebFetch on direct LinkedIn URLs — nothing else.
+- **Never WebFetch before Phase 4 dedup is complete.** Fetch JDs only for jobs that survived the seen-jobs filter.
+- **Never WebFetch a LinkedIn category or listing page** (e.g. `il.linkedin.com/jobs/algorithm-engineer-jobs`). Only `linkedin.com/jobs/view/...` URLs are permitted. The WebSearch snippets already contain the direct job URLs — use those.
