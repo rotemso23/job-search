@@ -9,6 +9,7 @@ Stops processing after 07:15 the next day (1 hour before the next search runs).
 import imaplib
 import email
 import email.header
+import json
 import os
 import re
 import subprocess
@@ -147,6 +148,45 @@ def run_cv_tailor(title, section):
         raise RuntimeError(output[-300:])
 
 
+def update_excel_for_job(work_dir, heading_title, after_timestamp):
+    """After tailoring, find the new recommendations.md and update the Excel row color."""
+    cv_dir = work_dir / "CV"
+    if not cv_dir.exists():
+        return
+
+    # Find the recommendations.md written after tailoring started
+    latest_file = None
+    latest_mtime = after_timestamp
+    for f in cv_dir.glob("*/recommendations.md"):
+        mtime = f.stat().st_mtime
+        if mtime > latest_mtime:
+            latest_mtime = mtime
+            latest_file = f
+    if not latest_file:
+        return
+
+    # Parse EXCEL_MATCH line
+    text = latest_file.read_text(encoding="utf-8")
+    m = re.search(r'^EXCEL_MATCH:\s*(strong|good|potential)', text, re.MULTILINE | re.IGNORECASE)
+    if not m:
+        return
+    match_level = m.group(1).lower()
+
+    # Parse "Job Title at Company" from the section heading
+    parts = heading_title.rsplit(" at ", 1)
+    if len(parts) != 2:
+        return
+    job_title, company = parts[0].strip(), parts[1].strip()
+    search_str = f"{job_title} — {company}"
+
+    subprocess.run(
+        ["python", str(work_dir / "excel_helper.py"),
+         "update", json.dumps({"search": search_str, "match": match_level})],
+        cwd=str(work_dir),
+        capture_output=True,
+    )
+
+
 def collect_jd_warnings(work_dir):
     """Return warning lines from any CV/*/jd-analysis.md files modified today."""
     today = datetime.date.today()
@@ -231,8 +271,10 @@ def main():
     for title, section in selected:
         try:
             print(f"  -> {title}")
+            start_ts = datetime.datetime.now().timestamp()
             run_cv_tailor(title, section)
             completed.append(title)
+            update_excel_for_job(WORK_DIR, title, start_ts)
         except Exception as e:
             print(f"  FAILED: {title} — {e}")
             failed.append((title, str(e)))

@@ -209,7 +209,7 @@ Append all new jobs shown today to `job-results/seen-jobs.md` in format `[Job Ti
 
 ### Step 3 — Excel tracker
 ```bash
-python "job-results/excel_helper.py" '<json>'
+python "excel_helper.py" '<json>'
 ```
 
 JSON array with fields: `title`, `company`, `location`, `match` (`strong`/`good`/`potential`), `url`.

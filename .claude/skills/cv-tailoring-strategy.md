@@ -159,6 +159,9 @@ Keywords added: [list]
 ### Recommendations File Format
 
 ```markdown
+EXCEL_MATCH: strong|good|potential
+(Replace with the actual value — strong if ≥80% of must-haves are met, good if 60–79%, potential if <60% or 3+ must-have gaps. Hard cap: if the JD was not fully read (⚠️ WARNING banner present), maximum is good — never strong. This line must always be present, on its own line, exactly as shown with the chosen value.)
+
 # CV Tailoring Recommendations — [Company Name] / [Job Title]
 
 ⚠️ WARNING: JD not fully read — [reason]. Analysis is based on partial content and may be incomplete.
