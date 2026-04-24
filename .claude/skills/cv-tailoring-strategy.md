@@ -161,7 +161,7 @@ Keywords added: [list]
 Choose the correct value based on must-have coverage: `strong` (≥80% met), `good` (60–79%), `potential` (<60% or 3+ gaps). Hard cap: if the JD was not fully read (⚠️ WARNING banner is present in jd-analysis.md), use `good` at most — never `strong`.
 
 ```markdown
-EXCEL_MATCH: strong
+EXCEL_MATCH: [write strong, good, or potential here — do not keep the brackets]
 
 # CV Tailoring Recommendations — [Company Name] / [Job Title]
 
