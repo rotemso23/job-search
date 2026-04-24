@@ -9,10 +9,11 @@ match values: "strong", "good", "potential"
 import sys
 import json
 import os
+import pathlib
 from openpyxl import load_workbook, Workbook
 from openpyxl.styles import PatternFill, Font, Alignment, Border, Side
 
-TRACKER_PATH = os.path.join(os.path.dirname(__file__), "job-results", "job_tracker.xlsx")
+TRACKER_PATH = str(pathlib.Path(__file__).resolve().parent / "job-results" / "job_tracker.xlsx")
 SHEET_NAME = "Job Search"
 
 HEADER_FILL   = PatternFill(patternType="solid", fgColor="FF1F4E79")
@@ -126,7 +127,7 @@ def update_match(search_str, new_match):
     updated = 0
     for row in ws.iter_rows(min_row=2, max_col=len(HEADERS)):
         cell_a = row[0]
-        if cell_a.value and search_str.lower() in str(cell_a.value).lower():
+        if cell_a.value and str(cell_a.value).lower() == search_str.lower():
             for cell in row:
                 cell.fill = fill
             updated += 1

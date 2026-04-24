@@ -172,6 +172,10 @@ def update_excel_for_job(work_dir, heading_title, after_timestamp):
         return
     match_level = m.group(1).lower()
 
+    # Enforce partial-JD cap regardless of what the agent wrote
+    if match_level == "strong" and re.search(r'⚠️ WARNING: JD not fully read', text):
+        match_level = "good"
+
     # Parse "Job Title at Company" from the section heading
     parts = heading_title.rsplit(" at ", 1)
     if len(parts) != 2:
