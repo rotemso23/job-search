@@ -21,7 +21,6 @@ A set of AI agent definitions and strategy playbooks that run inside [Claude Cod
 
 ```bash
 git clone https://github.com/rotemso23/job-search.git
-cd job-search-agent
 ```
 
 Then open the folder in Claude Code.

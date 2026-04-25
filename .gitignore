@@ -7,13 +7,6 @@
 !.claude/agent-memory/job-search-agent/.gitkeep
 .claude/settings.local.json
 
-# Personal / private files
-CLAUDE_finetune_project.md
-CLAUDE_rag_project.md
-portfolio-projects.md
-public-release-plan.md
-
-job-search-pipeline/
 CV/**
 !CV/.gitkeep
 job-results/**
