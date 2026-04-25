@@ -1,7 +1,8 @@
 # Run this script ONCE as Administrator to register both scheduled tasks.
 # Right-click PowerShell -> "Run as administrator", then run this file.
 
-$workDir = $PSScriptRoot
+$workDir   = $PSScriptRoot
+$folderTag = (Split-Path $workDir -Leaf) -replace '\s+', '_'
 
 # ── Task 1: Daily job search ──────────────────────────────────────────────────
 $searchAction = New-ScheduledTaskAction `
@@ -18,7 +19,7 @@ $searchSettings.DisallowStartIfOnBatteries = $false
 $searchSettings.StopIfGoingOnBatteries = $false
 
 Register-ScheduledTask `
-    -TaskName    "DailyJobSearch" `
+    -TaskName    "DailyJobSearch_$folderTag" `
     -Description "Runs Claude job-search-agent daily at 08:15 and emails results" `
     -Action      $searchAction `
     -Trigger     $searchTrigger `
@@ -26,7 +27,7 @@ Register-ScheduledTask `
     -RunLevel    Highest `
     -Force
 
-Write-Host "Task 1 registered: DailyJobSearch (runs daily at 08:15)"
+Write-Host "Task 1 registered: DailyJobSearch_$folderTag (runs daily at 08:15)"
 
 # ── Task 2: Hourly reply checker (starts at 09:00, repeats every hour) ────────
 $python = (Get-Command python -ErrorAction SilentlyContinue).Source
@@ -52,7 +53,7 @@ $replySettings.DisallowStartIfOnBatteries = $false
 $replySettings.StopIfGoingOnBatteries = $false
 
 Register-ScheduledTask `
-    -TaskName    "DailyJobReplyChecker" `
+    -TaskName    "DailyJobReplyChecker_$folderTag" `
     -Description "Checks Gmail hourly starting 09:00 for reply to job search email and runs CV tailor agent" `
     -Action      $replyAction `
     -Trigger     $replyTrigger `
@@ -60,6 +61,6 @@ Register-ScheduledTask `
     -RunLevel    Highest `
     -Force
 
-Write-Host "Task 2 registered: DailyJobReplyChecker (runs every hour starting 09:00)"
+Write-Host "Task 2 registered: DailyJobReplyChecker_$folderTag (runs every hour starting 09:00)"
 Write-Host ""
 Write-Host "Setup complete."

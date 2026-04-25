@@ -1,5 +1,10 @@
 # Claude Code memory and local settings (personal, not for version control)
-.claude/agent-memory/
+.claude/agent-memory/cv-tailoring-agent/**
+.claude/agent-memory/jd-analyzer-agent/**
+.claude/agent-memory/job-search-agent/**
+!.claude/agent-memory/cv-tailoring-agent/.gitkeep
+!.claude/agent-memory/jd-analyzer-agent/.gitkeep
+!.claude/agent-memory/job-search-agent/.gitkeep
 .claude/settings.local.json
 
 # Personal / private files
@@ -9,10 +14,15 @@ portfolio-projects.md
 public-release-plan.md
 
 job-search-pipeline/
-CV/
-job-results/
-Rotem Solomon CV.md
-Rotem Solomon CV.pdf
+CV/**
+!CV/.gitkeep
+job-results/**
+!job-results/.gitkeep
+
+# Your CV files (never commit)
+*.pdf
+# Also add your generated Markdown CV here (same name as cv_file in config.ini):
+# MY_CV.md
 
 # OS
 .DS_Store
@@ -29,3 +39,6 @@ __pycache__/
 
 # Local credentials (never commit)
 .credentials/
+
+# User config (copy from config.example.ini and fill in your details)
+config.ini

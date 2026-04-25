@@ -25,8 +25,8 @@ Load from memory if available. If not, ask: "Please share your CV — paste the 
 
 **Step 2 — Check for existing JD analysis**
 If the company name is known, look for an existing analysis. Check in this order (most specific first):
-1. `CV\[Company Name] - [Job Title]\jd-analysis.md` — exact match for this company + role
-2. `CV\[Company Name]\jd-analysis.md` — only if step 1 does not exist
+1. `CV/[Company Name] - [Job Title]/jd-analysis.md` — exact match for this company + role
+2. `CV/[Company Name]/jd-analysis.md` — only if step 1 does not exist
 
 Use the first one found. If both exist, always use #1 (the specific one). Note the folder path — it will be reused in Phase 7.
 
@@ -151,10 +151,10 @@ Keywords added: [list]
 1. **Use the folder established in Phase 1** (either found in Step 2 or created by the jd-analyzer in Step 4). Do not create a new folder.
 
 2. **Save a recommendations file:**
-   `C:\Users\משתמש\Desktop\job search\CV\[folder from Phase 1]\recommendations.md`
+   `CV/[folder from Phase 1]/recommendations.md` (relative to the repo root)
 
 3. **Confirm to the user:**
-   > Recommendations saved to `CV\[folder from Phase 1]\recommendations.md`
+   > Recommendations saved to `CV/[folder from Phase 1]/recommendations.md`
 
 ### Recommendations File Format
 

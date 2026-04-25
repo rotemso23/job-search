@@ -11,39 +11,35 @@ You are executing a structured job search. Follow this playbook in order. Do not
 
 ## Phase 1 — Profile Extraction (Before You Search)
 
-Before opening any job board, read the CV from `Rotem Solomon CV.md` (in the repo root) and extract:
+Before opening any job board:
+
+1. **Read `config.ini`** from the repo root. Extract:
+   - `[user] cv_file` — the CV filename
+   - `[search] location` — the target location for LinkedIn searches
+   - `[search] seniority` — the user's seniority level (e.g. junior, mid, senior)
+   - `[search] job_titles` — the list of target job titles (one per line)
+
+2. **Read the CV** (filename from step 1) and extract:
 
 | Signal | Where to find it | Why it matters |
 |--------|-----------------|----------------|
-| Core job titles | CV headline, most recent roles | Drives primary search terms |
 | Tech stack | Skills section, project bullets | Keyword filters |
 | Seniority level | Years of experience, titles held | Prevents mismatched results |
-| Location constraints | User request | Filters geographically |
 | Must-haves / deal-breakers | User request or memory | Eliminates waste upfront |
 
-If running interactively and anything is ambiguous, ask before searching. In automated mode, proceed with the profile from the CV and memory — do not pause.
+The `job_titles`, `location`, and `seniority` from `config.ini` take precedence — do not infer them from the CV.
+
+If running interactively and anything is ambiguous, ask before searching. In automated mode, proceed with the profile from config.ini and the CV — do not pause.
 
 ---
 
 ## Phase 2 — Query Construction
 
-### Target Job Titles for Rotem Solomon
+### Target Job Titles
 
-There are **3 fixed groups**. Fetch all 3 every session — **1 WebFetch per group** on LinkedIn's own search UI.
+Take the `job_titles` list from `config.ini` and split it into groups of **up to 5 titles each**. Each group becomes one LinkedIn WebFetch call.
 
-**Group 1 — AI/ML (core):**
-- Algorithm Engineer / Algorithm Developer
-- Machine Learning Engineer / ML Engineer
-- AI Engineer
-- Research Engineer / Deep Learning Engineer
-- Data Scientist
-
-**Group 2 — Biomedical:**
-- Biomedical Algorithm Engineer
-- Medical AI Engineer / Healthcare AI Engineer
-
-**Group 3 — LLM / Agents:**
-- LLM Engineer / AI Agent Developer / GenAI Engineer / Generative AI Engineer
+Example: 13 titles → 3 groups (5 + 5 + 3).
 
 ### Query Strategy
 Use title-only (broad) queries. Do not add skill keywords; filtering by skill happens in Phase 7 scoring after reading the JD.
@@ -54,30 +50,28 @@ Use title-only (broad) queries. Do not add skill keywords; filtering by skill ha
 
 **Use LinkedIn's own job search UI via WebFetch** — this applies LinkedIn's own "Past month" date filter, giving genuinely fresh results instead of Google's stale index.
 
-For each of the 3 groups, WebFetch the following URL (replace the `keywords` value per group):
+For each group of titles (from Phase 2), construct and WebFetch a LinkedIn URL using this template:
 
-**Group 1:**
 ```
-https://www.linkedin.com/jobs/search/?keywords=%22algorithm+engineer%22+OR+%22algorithm+developer%22+OR+%22machine+learning+engineer%22+OR+%22AI+engineer%22+OR+%22research+engineer%22+OR+%22deep+learning+engineer%22+OR+%22data+scientist%22&location=Israel&f_TPR=r2592000
-```
-
-**Group 2:**
-```
-https://www.linkedin.com/jobs/search/?keywords=%22biomedical+algorithm%22+OR+%22medical+AI+engineer%22+OR+%22healthcare+AI+engineer%22&location=Israel&f_TPR=r2592000
+https://www.linkedin.com/jobs/search/?keywords=KEYWORDS&location=LOCATION&f_TPR=r2592000
 ```
 
-**Group 3:**
+Where:
+- `LOCATION` = the `location` value from `config.ini`, URL-encoded (spaces → `+`)
+- `KEYWORDS` = each title in the group, quoted and joined with `+OR+`, URL-encoded (spaces → `+`, `"` → `%22`)
+
+Example for titles ["ML Engineer", "AI Engineer"] with location "Tel Aviv, Israel":
 ```
-https://www.linkedin.com/jobs/search/?keywords=%22LLM+engineer%22+OR+%22AI+agent+developer%22+OR+%22generative+AI+engineer%22+OR+%22GenAI+engineer%22&location=Israel&f_TPR=r2592000
+https://www.linkedin.com/jobs/search/?keywords=%22ML+engineer%22+OR+%22AI+engineer%22&location=Tel+Aviv%2C+Israel&f_TPR=r2592000
 ```
 
-(`f_TPR=r2592000` = Past 30 days. `location=Israel` applies LinkedIn's location filter.)
+(`f_TPR=r2592000` = Past 30 days. `location` applies LinkedIn's location filter.)
 
 - From each WebFetch response, extract: job title, company, location, posting date, and `linkedin.com/jobs/view/...` URL.
 - Do **not** fetch company career pages.
 - Do **not** try other platforms at this stage.
-- **Hard limit: 1 WebFetch per group = 3 WebFetch calls total in this phase.**
-- **If a LinkedIn WebFetch returns a login wall or no job listings** (LinkedIn may block unauthenticated access), note the failure and fall back to WebSearch for that group: `"<titles>" Israel site:linkedin.com/jobs/view 2026`. A WebSearch fallback counts toward the Phase 5 budget.
+- **Hard limit: 1 WebFetch per group.**
+- **If a LinkedIn WebFetch returns a login wall or no job listings** (LinkedIn may block unauthenticated access), note the failure and fall back to WebSearch for that group: `"<titles>" <location> site:linkedin.com/jobs/view [current year]` (use the `location` from `config.ini`). A WebSearch fallback counts toward the Phase 5 budget.
 
 ---
 
@@ -86,7 +80,7 @@ https://www.linkedin.com/jobs/search/?keywords=%22LLM+engineer%22+OR+%22AI+agent
 1. **Freshness:** default window is last 30 days. Flag anything older.
 2. **Same-session dedup:** if the same role appears in multiple search results, keep it once.
 3. **Cross-session dedup (MANDATORY):**
-   - Read `job-results/seen-jobs.md` — the cumulative list of all previously shown jobs.
+   - Read `job-results/seen-jobs.md` — the cumulative list of all previously shown jobs. If the file does not exist yet (first run), treat it as empty and skip deduplication.
    - Each entry is in format `Job Title | Company` or `Job Title | Company | YYYY-MM-DD`.
    - **Ignore entries older than 60 days** (entries with a date more than 60 days ago are treated as fresh — they may be re-shown). Entries with no date are always treated as seen.
    - Discard any job that matches a non-expired entry on company name + job title (case-insensitive).
@@ -102,8 +96,8 @@ https://www.linkedin.com/jobs/search/?keywords=%22LLM+engineer%22+OR+%22AI+agent
 Check: how many new (non-deduped) jobs survived Phase 4?
 
 - **5 or more:** proceed to Phase 6.
-- **Fewer than 5 and LinkedIn WebFetch worked:** repeat all 3 LinkedIn WebFetch calls with a 60-day window (`f_TPR=r5184000` instead of `r2592000`). Apply Phase 4 dedup, merge survivors. Proceed to Phase 6.
-- **Fewer than 5 and LinkedIn WebFetch was blocked for all groups:** fall back to WebSearch for all 3 groups using `site:linkedin.com/jobs/view`: one WebSearch per group, same title variants, add `2026` for freshness bias. Apply Phase 4 dedup, merge survivors. Proceed to Phase 6.
+- **Fewer than 5 and LinkedIn WebFetch worked:** repeat all LinkedIn WebFetch calls (one per group) with a 60-day window (`f_TPR=r5184000` instead of `r2592000`). Apply Phase 4 dedup, merge survivors. Proceed to Phase 6.
+- **Fewer than 5 and LinkedIn WebFetch was blocked for all groups:** fall back to WebSearch for all groups using `site:linkedin.com/jobs/view`: one WebSearch per group, same title variants, add the current year for freshness bias. Apply Phase 4 dedup, merge survivors. Proceed to Phase 6.
 - Do not run more searches after the iteration step regardless of final count.
 - **Never return to Phase 5 after Phase 6 has started.** If results are still thin after Phase 6 begins, proceed anyway — do not go back and search more.
 
@@ -114,9 +108,9 @@ Check: how many new (non-deduped) jobs survived Phase 4?
 **HARD LIMIT: Exactly 10 WebFetch calls in this entire phase. Count every fetch. Stop immediately when you reach 10, even if more jobs remain.**
 
 1. **Snippet-rank the survivors** from Phase 4 without fetching anything. Score each job 1–3 on the LinkedIn snippet alone using these signals:
-   - Title closely matches Rotem's target titles → +1
-   - Snippet mentions junior / entry-level / fresh graduate → +1
-   - Location is Tel Aviv center → +1 (Haifa or periphery → -1)
+   - Title closely matches your target titles → +1
+   - Snippet mentions seniority level that matches `seniority` from `config.ini` → +1
+   - Location matches the user's preferred location (from `config.ini` `location`) → +1 (far periphery or mismatched city → -1)
 
 2. **WebFetch the top 10 only** by snippet score, using their direct `linkedin.com/jobs/view/...` URLs. Fetch them one-by-one and track your count: after fetch #10, move to Phase 7 — no exceptions.
 
@@ -134,8 +128,8 @@ Check: how many new (non-deduped) jobs survived Phase 4?
 Apply to all surviving jobs (using full JD where fetched, snippet otherwise):
 
 1. **Hard eliminators** (remove immediately):
-   - Requires 3+ years industry experience with no junior track
-   - Wrong location with no remote option
+   - Experience requirement clearly exceeds the user's seniority level (from `config.ini`) with no junior/entry track mentioned
+   - Location does not match `config.ini` `location` and no remote option offered
 
 2. **Soft filters** (flag, don't remove):
    - Missing 1–2 preferred skills → keep, note as gap
@@ -203,7 +197,7 @@ End with a **Search Summary** using `####` (not `###`) for all subsection header
 Save the full output to `job-results/YYYY-MM-DD_search.md`.
 
 ### Step 2 — Update seen-jobs
-Append all new jobs shown today to `job-results/seen-jobs.md` in format `[Job Title] | [Company] | YYYY-MM-DD` (one per line, using today's date).
+Append all new jobs shown today to `job-results/seen-jobs.md` in format `[Job Title] | [Company] | YYYY-MM-DD` (one per line, using today's date). Create the `job-results/` directory and the file if they do not exist yet.
 
 ### Step 3 — Excel tracker
 ```bash

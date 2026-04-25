@@ -9,11 +9,15 @@ $date     = Get-Date -Format "yyyy-MM-dd"
 $logFile  = "$workDir\job-results\${date}_search.md"
 $debugLog = "$workDir\job-results\${date}_debug.log"
 
-$from     = "rotemso23@gmail.com"
-$to       = "rotemso23@gmail.com"
+$configFile = "$workDir\config.ini"
+$emailAddr  = (Select-String -Path $configFile -Pattern '^\s*email\s*=\s*(.+)$').Matches[0].Groups[1].Value.Trim()
+$from       = $emailAddr
+$to         = $emailAddr
 $subject  = "Daily Job Search Results - $date"
 
 Set-Location $workDir
+
+New-Item -ItemType Directory -Force -Path "$workDir\job-results" | Out-Null
 
 # -- 1. Run the job-search-agent ----------------------------------------------
 Write-Host "[$(Get-Date -Format 'HH:mm:ss')] Starting job-search-agent..."

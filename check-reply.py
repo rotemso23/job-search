@@ -17,11 +17,15 @@ import datetime
 import pathlib
 import smtplib
 import ssl
+import configparser
 from email.mime.text import MIMEText
 
 WORK_DIR     = pathlib.Path(__file__).parent
-USER_HOME    = r"C:\Users\משתמש"
-EMAIL_ADDR   = "rotemso23@gmail.com"
+USER_HOME    = str(pathlib.Path.home())
+
+_config = configparser.ConfigParser()
+_config.read(WORK_DIR / "config.ini")
+EMAIL_ADDR   = _config["user"]["email"]
 APP_PASSWORD = (WORK_DIR / ".credentials" / "gmail.secret").read_text(encoding="utf-8").strip()
 
 
@@ -32,6 +36,8 @@ APP_PASSWORD = (WORK_DIR / ".credentials" / "gmail.secret").read_text(encoding="
 def get_search_date():
     """Return the date of the most recent results file, or None."""
     results_dir = WORK_DIR / "job-results"
+    if not results_dir.exists():
+        return None
     files = sorted(results_dir.glob("????-??-??_search.md"), reverse=True)
     if not files:
         return None

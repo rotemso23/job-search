@@ -6,7 +6,88 @@ A Claude Code agent workspace that automates and streamlines the job search proc
 
 ## What this repo is
 
-This is not an application — it's a set of AI agent definitions and strategy playbooks that run inside [Claude Code](https://claude.ai/code). Each agent handles a specific part of the job search workflow, guided by a strategy skill that defines exactly how the work is done.
+A set of AI agent definitions and strategy playbooks that run inside [Claude Code](https://claude.ai/code). Each agent handles a specific part of the job search workflow, guided by a strategy skill that defines exactly how the work is done.
+
+---
+
+## Getting started
+
+### Prerequisites
+- [Claude Code](https://claude.ai/code) installed and configured ([installation guide](https://docs.anthropic.com/en/docs/claude-code/getting-started))
+- Python 3.8+ with pip
+- Your CV saved as a PDF
+
+### 1. Clone the repo and open it in Claude Code
+
+```bash
+git clone https://github.com/rotemso23/job-search.git
+cd job-search-agent
+```
+
+Then open the folder in Claude Code.
+
+### 2. Configure your profile
+
+Copy `config.example.ini` → `config.ini` in the repo root and fill in your details:
+
+```ini
+[user]
+email = your@gmail.com
+cv_file = MY_CV.md        # the Markdown CV the agents will read
+
+[search]
+location = City, Country      # used as the LinkedIn location filter
+seniority = junior            # junior / mid / senior — used to score search results
+job_titles =                  # replace with your target titles, one per line, indented with spaces
+    Software Engineer
+    Data Engineer
+    ML Engineer
+```
+
+> `config.ini` and your CV files are excluded from version control — they never get committed.
+
+### 3. Add your CV
+
+Export your CV from Word / Google Docs / Canva as a PDF and save it in the repo root.
+The PDF filename must match `cv_file` but with `.pdf` — so if you set `cv_file = MY_CV.md`, save the PDF as `MY_CV.pdf`.
+
+Install dependencies and convert the PDF to Markdown (the agents read Markdown, not PDF):
+
+```bash
+pip install -r requirements.txt
+python convert_cv.py
+```
+
+This creates `MY_CV.md` automatically. Re-run it any time you update the PDF.
+
+> **Important:** add your Markdown CV filename to `.gitignore` so it never gets committed. Open `.gitignore` and uncomment the `# MY_CV.md` line, replacing `MY_CV.md` with your actual filename.
+
+---
+
+## How to use
+
+### Launching an agent
+
+Open Claude Code in this folder and describe what you want in natural language:
+
+```
+Run the job-search-agent
+```
+
+Replace `job-search-agent` with whichever agent you want to run.
+
+### Workflow
+
+1. **Search for jobs** — launch `job-search-agent` to find relevant postings based on your profile and preferences. Results are saved to:
+   - `job-results/YYYY-MM-DD_search.md` — full session log
+   - `job-results/job_tracker.xlsx` — running Excel tracker with all jobs across sessions, color coded by match quality:
+     - 🟢 Green — strong match
+     - 🟡 Yellow — good match
+     - 🔴 Red — potential match (some gaps)
+
+2. **Analyze a job description** — paste a job description and launch `jd-analyzer-agent` to extract required skills, ATS keywords, and real role priorities.
+
+3. **Tailor your CV** — paste a job description and launch `cv-tailoring-agent` to get `jd-analysis.md` and `recommendations.md` — a structured tailoring guide you apply to your own CV file.
 
 ---
 
@@ -28,34 +109,37 @@ The system uses a two-layer pattern:
 
 ---
 
-## How to use
-
-### Prerequisites
-- [Claude Code](https://claude.ai/code) installed and configured
-- Your CV saved locally
-- A LinkedIn / job board account for sourcing postings
-
-### Workflow
-
-1. **Search for jobs** — launch the `job-search-agent` to find relevant job postings based on your profile and preferences. Results are saved to `job-results/`.
-
-2. **Analyze a job description** — paste a JD and launch the `jd-analyzer-agent` to extract required skills, ATS keywords, and real role priorities.
-
-3. **Tailor your CV** — launch the `cv-tailoring-agent` with a JD to get `jd-analysis.md` and `recommendations.md` — a structured tailoring guide you apply to your own CV file.
-
----
-
-## Automation Pipeline
+## Automation Pipeline (Windows only)
 
 In addition to manual use, the workspace includes a fully autonomous daily loop driven by Windows Task Scheduler.
 
+**How it works:** Every morning the pipeline searches for jobs and emails you a numbered list. You reply to that email with the numbers of the jobs you want to apply to (e.g. `1, 3, 5`). The pipeline picks up your reply and for each selected job runs the CV tailoring agent — which analyzes the job description and produces a tailored recommendations file telling you exactly how to adapt your CV for that role. A completion email is sent when done. That's the only action required from you each day.
+
+### Setup
+
+1. Create a `.credentials/` folder in the repo root and save your Gmail app password inside it as `gmail.secret` (plain text, nothing else in the file).
+
+   > **What is a Gmail app password?** It's a 16-character code that lets an app send email on your behalf — it is NOT your regular Gmail password. To generate one:
+   > 1. Go to [myaccount.google.com](https://myaccount.google.com) → **Security**
+   > 2. Under "How you sign in to Google", enable **2-Step Verification** if not already on
+   > 3. Search for **App passwords** (or go to Security → 2-Step Verification → scroll to the bottom)
+   > 4. Create a new app password — name it anything (e.g. "Job Search")
+   > 5. Copy the 16-character code into `.credentials/gmail.secret` (no spaces, no quotes)
+
+2. Run `setup-scheduler.ps1` as Administrator once to register the scheduled tasks.
+3. The pipeline runs automatically from that point on — job search at 08:15, reply checks every hour from 09:00.
+
+> `.credentials/` is excluded from version control — never commit credentials.
+
 ### Scripts
+
+You only need to run `setup-scheduler.ps1` once — the other scripts are triggered automatically by the scheduler.
 
 | File | Role |
 |------|------|
-| `setup-scheduler.ps1` | Run once (as Administrator) to register the scheduled tasks |
-| `run-job-search.ps1` | Runs daily at 08:15 — executes `job-search-agent` and emails results with a numbered quick-apply list |
-| `check-reply.py` | Runs hourly from 09:00 — checks Gmail for your reply, parses selected job numbers, runs `cv-tailoring-agent` per job, sends a completion email |
+| `setup-scheduler.ps1` | **Run this once** (as Administrator) to register the scheduled tasks |
+| `run-job-search.ps1` | Triggered automatically at 08:15 — executes `job-search-agent` and emails results with a numbered quick-apply list |
+| `check-reply.py` | Triggered automatically every hour from 09:00 — checks Gmail for your reply, parses selected job numbers, runs `cv-tailoring-agent` per job, sends a completion email |
 
 ### Flow
 
@@ -69,11 +153,3 @@ scheduler
 ### Debug Logging
 
 `run-job-search.ps1` streams Claude's output in real time using `--output-format stream-json --verbose`. The log at `job-results/YYYY-MM-DD_debug.log` fills incrementally during the run — tail it to monitor progress. Tool calls appear as `[TOOL] ToolName: {input}` lines.
-
-### Setup
-
-1. Store your Gmail app password in `.credentials/gmail.secret` (plain text).
-2. Run `setup-scheduler.ps1` as Administrator once to register the tasks.
-3. The pipeline runs automatically from that point on.
-
-> `.credentials/` is excluded from version control — never commit credentials.

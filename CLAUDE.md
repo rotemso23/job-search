@@ -48,11 +48,7 @@ Credentials are stored in `.credentials/gmail.secret` (app password, plain text)
 
 The following directories exist locally but are excluded from version control:
 
-- `CV/` — tailored CV files per application
-- `job-results/` — job search session logs and tracker
-- `.credentials/` — Gmail app password and daily done-flag files
+- `CV/` — tailored CV files per application (folder scaffolded via `.gitkeep`, contents excluded)
+- `job-results/` — job search session logs and tracker (folder scaffolded via `.gitkeep`, contents excluded)
+- `.credentials/` — Gmail app password and daily done-flag files (fully excluded, create manually)
 
-## Workflow Rules
-
-- **Always read the strategy skill before launching an agent.** For example, before launching `job-search-agent`, read `job-search-strategy.md` and complete all required pre-flight steps (e.g. Phase 1 profile extraction) before invoking the agent.
-- **After every job search session, save results to a file** at `job-results/YYYY-MM-DD_search.md`. Include all job listings and the search summary.

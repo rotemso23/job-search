@@ -230,13 +230,14 @@ Tier 3 (context):     `term` `term` `term`
 
 After completing Phases 5–8, save the full analysis to a file:
 
-1. **Create a folder** for this analysis:
-   - If `CV\[Company Name]\` does not exist → create it and use it.
-   - If `CV\[Company Name]\` already exists → create `CV\[Company Name] - [Job Title]\` instead, to avoid overwriting a previous analysis for the same company.
+1. **Create a folder** for this analysis (all paths are relative to the repo root):
+   - If `CV/` does not exist → create it first.
+   - If `CV/[Company Name]/` does not exist → create it and use it.
+   - If `CV/[Company Name]/` already exists → create `CV/[Company Name] - [Job Title]/` instead, to avoid overwriting a previous analysis for the same company.
    - If the company name is unknown, use the job title as the folder name.
 
 2. **Save the analysis as:**
-   `C:\Users\משתמש\Desktop\job search\CV\[folder from step 1]\jd-analysis.md`
+   `CV/[folder from step 1]/jd-analysis.md` (relative to the repo root)
 
 3. **File format:**
 ```markdown
@@ -269,7 +270,7 @@ Tier 3 (context):     `term` `term`
 ```
 
 4. **Confirm to the user:**
-   > Analysis saved to `CV\[folder from step 1]\jd-analysis.md`
+   > Analysis saved to `CV/[folder from step 1]/jd-analysis.md`
 
 ---
 
