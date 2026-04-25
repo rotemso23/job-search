@@ -202,16 +202,14 @@ def update_excel_for_job(work_dir, heading_title, after_timestamp):
     )
 
 
-def collect_jd_warnings(work_dir):
-    """Return warning lines from any CV/*/jd-analysis.md files modified today."""
-    today = datetime.date.today()
+def collect_jd_warnings(work_dir, since_ts):
+    """Return warning lines from CV/*/jd-analysis.md files modified after since_ts."""
     warnings = []
     cv_dir = work_dir / "CV"
     if not cv_dir.exists():
         return warnings
     for analysis_file in cv_dir.glob("*/jd-analysis.md"):
-        mtime = datetime.date.fromtimestamp(analysis_file.stat().st_mtime)
-        if mtime != today:
+        if analysis_file.stat().st_mtime <= since_ts:
             continue
         text = analysis_file.read_text(encoding="utf-8")
         for line in text.splitlines():
@@ -281,6 +279,7 @@ def main():
     flag.touch()
 
     print(f"Running CV tailor agent for {len(selected)} job(s)...")
+    run_start_ts = datetime.datetime.now().timestamp()
     completed, failed = [], []
     for title, section in selected:
         try:
@@ -310,7 +309,7 @@ def main():
             lines.append(f"  - {t}")
             lines.append(f"    Reason: {reason}")
 
-    jd_warnings = collect_jd_warnings(WORK_DIR)
+    jd_warnings = collect_jd_warnings(WORK_DIR, run_start_ts)
     if jd_warnings:
         lines.append("\n⚠️ JD Read Warnings — these analyses used partial content:")
         lines.extend(jd_warnings)
