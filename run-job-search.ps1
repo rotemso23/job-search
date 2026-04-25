@@ -34,6 +34,7 @@ Save results to job-results/${date}_search.md and append all new jobs to the Exc
 "@
 
 $writer = [System.IO.StreamWriter]::new($debugLog, $true, [System.Text.Encoding]::UTF8)
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 try {
     & claude --dangerously-skip-permissions -p $prompt --output-format stream-json --verbose 2>&1 | ForEach-Object {
         $line = $_
