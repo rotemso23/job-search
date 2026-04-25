@@ -81,7 +81,7 @@ def check_gmail_for_reply(date):
 
     reply_body = None
     if status == "OK":
-        for mid in ids[0].split():
+        for mid in reversed(ids[0].split()):
             _, data = mail.fetch(mid, "(RFC822)")
             msg = email.message_from_bytes(data[0][1])
 
@@ -111,8 +111,11 @@ def parse_numbers(text):
     """Extract all integers from the reply, ignoring quoted original email."""
     lines = []
     for line in text.splitlines():
-        # Stop at quoted reply block (>, On ... wrote:, or -----Original Message-----)
-        if line.startswith(">") or re.search(r"<[^>]+@[^>]+>", line) or line.startswith("-----"):
+        # Stop at quoted reply block
+        if (line.startswith(">")
+                or line.startswith("-----")
+                or re.search(r"<[^>]+@[^>]+>", line)
+                or re.search(r"On .+ wrote:", line)):
             break
         lines.append(line)
     return [int(n) for n in re.findall(r'\b(\d+)\b', "\n".join(lines))]
@@ -121,6 +124,8 @@ def parse_numbers(text):
 def run_cv_tailor(title, section):
     """Invoke the cv-tailoring-agent for one job."""
     prompt = (
+        f"This is an automated pipeline run triggered by check-reply.py — "
+        f"never ask for user input, never block, proceed through all steps autonomously.\n\n"
         f"Run the cv-tailoring-agent for this job.\n\n"
         f"Job: {title}\n\n"
         f"Full job details from today's search results:\n{section}\n\n"
@@ -137,15 +142,12 @@ def run_cv_tailor(title, section):
     result = subprocess.run(
         ["claude", "--dangerously-skip-permissions", "-p", prompt],
         cwd=str(WORK_DIR),
-        capture_output=True,
         text=True,
         creationflags=subprocess.CREATE_NO_WINDOW,
         env=env,
     )
     if result.returncode != 0:
-        output = (result.stdout or result.stderr or "no output").strip()
-        # Keep last 300 chars to avoid huge emails
-        raise RuntimeError(output[-300:])
+        raise RuntimeError(f"claude exited with code {result.returncode}")
 
 
 def update_excel_for_job(work_dir, heading_title, after_timestamp):
@@ -176,8 +178,11 @@ def update_excel_for_job(work_dir, heading_title, after_timestamp):
     if match_level == "strong" and re.search(r'⚠️ WARNING: JD not fully read', text):
         match_level = "good"
 
-    # Parse "Job Title at Company" from the section heading
-    parts = heading_title.rsplit(" at ", 1)
+    # Parse "Job Title at Company" or "Job Title | Company" from the section heading
+    if " | " in heading_title:
+        parts = heading_title.rsplit(" | ", 1)
+    else:
+        parts = heading_title.rsplit(" at ", 1)
     if len(parts) != 2:
         return
     job_title, company = parts[0].strip(), parts[1].strip()
@@ -260,8 +265,7 @@ def main():
     for n in numbers:
         if 1 <= n <= len(jobs):
             selected.append(jobs[n - 1])
-        else:
-            print(f"  Job #{n} is out of range (max {len(jobs)}). Skipping.")
+        # else: silently skip out-of-range numbers (often noise from quoted email body)
 
     if not selected:
         print("No valid jobs selected. Exiting.")

@@ -34,18 +34,16 @@ There are **3 fixed groups**. Fetch all 3 every session — **1 WebFetch per gro
 **Group 1 — AI/ML (core):**
 - Algorithm Engineer / Algorithm Developer
 - Machine Learning Engineer / ML Engineer
-- AI Engineer / AI/ML Engineer
+- AI Engineer
 - Research Engineer / Deep Learning Engineer
 - Data Scientist
 
-**Group 2 — Signal Processing & Biomedical:**
+**Group 2 — Biomedical:**
 - Biomedical Algorithm Engineer
-- Signal Processing Engineer
 - Medical AI Engineer / Healthcare AI Engineer
-- Medical Imaging Engineer
 
 **Group 3 — LLM / Agents:**
-- LLM Engineer / AI Agent Developer / GenAI Engineer
+- LLM Engineer / AI Agent Developer / GenAI Engineer / Generative AI Engineer
 
 ### Query Strategy
 Use title-only (broad) queries. Do not add skill keywords; filtering by skill happens in Phase 7 scoring after reading the JD.
@@ -60,12 +58,12 @@ For each of the 3 groups, WebFetch the following URL (replace the `keywords` val
 
 **Group 1:**
 ```
-https://www.linkedin.com/jobs/search/?keywords=%22algorithm+engineer%22+OR+%22machine+learning+engineer%22+OR+%22AI+engineer%22+OR+%22deep+learning+engineer%22+OR+%22data+scientist%22&location=Israel&f_TPR=r2592000
+https://www.linkedin.com/jobs/search/?keywords=%22algorithm+engineer%22+OR+%22algorithm+developer%22+OR+%22machine+learning+engineer%22+OR+%22AI+engineer%22+OR+%22research+engineer%22+OR+%22deep+learning+engineer%22+OR+%22data+scientist%22&location=Israel&f_TPR=r2592000
 ```
 
 **Group 2:**
 ```
-https://www.linkedin.com/jobs/search/?keywords=%22signal+processing+engineer%22+OR+%22biomedical+algorithm%22+OR+%22medical+AI+engineer%22+OR+%22medical+imaging+engineer%22&location=Israel&f_TPR=r2592000
+https://www.linkedin.com/jobs/search/?keywords=%22biomedical+algorithm%22+OR+%22medical+AI+engineer%22+OR+%22healthcare+AI+engineer%22&location=Israel&f_TPR=r2592000
 ```
 
 **Group 3:**

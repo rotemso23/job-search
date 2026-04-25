@@ -67,14 +67,17 @@ if (Test-Path $logFile) {
 
 # -- 3. Build numbered quick-apply header -------------------------------------
 $jobs = @()
-foreach ($line in ($body -split "`n")) {
-    if ($line -match '^### (.+)$') {
+$counter = 0
+$body = ($body -split "`n" | ForEach-Object {
+    if ($_ -match '^### (.+)$') {
         $title = $Matches[1].Trim()
         if ($title -notmatch '^Job \d+ of \d+$') {
+            $counter++
             $jobs += $title
-        }
-    }
-}
+            "### $counter. $title"
+        } else { $_ }
+    } else { $_ }
+}) -join "`n"
 
 $jobList = ""
 for ($i = 0; $i -lt $jobs.Count; $i++) {
