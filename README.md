@@ -47,19 +47,18 @@ job_titles =                  # replace with your target titles, one per line, i
 
 ### 3. Add your CV
 
-Export your CV from Word / Google Docs / Canva as a PDF and save it in the repo root.
-The PDF filename must match `cv_file` but with `.pdf` — so if you set `cv_file = MY_CV.md`, save the PDF as `MY_CV.pdf`.
-
-Install dependencies and convert the PDF to Markdown (the agents read Markdown, not PDF):
+1. Save your CV as a PDF in the repo root — name it whatever you like (e.g. `John_Doe_CV.pdf`).
+2. In `config.ini`, set `cv_file` to the same name but with `.md` — e.g. `cv_file = John_Doe_CV.md`.
+3. Install dependencies and run the converter:
 
 ```bash
 pip install -r requirements.txt
 python convert_cv.py
 ```
 
-This creates `MY_CV.md` automatically. Re-run it any time you update the PDF.
+This reads your PDF and creates the Markdown file automatically. Re-run it any time you update your CV.
 
-> **Important:** add your Markdown CV filename to `.gitignore` so it never gets committed. Open `.gitignore` and uncomment the `# MY_CV.md` line, replacing `MY_CV.md` with your actual filename.
+> **Important:** open `.gitignore`, find the `# MY_CV.md` line at the bottom, uncomment it and replace `MY_CV.md` with your actual filename so it never gets committed.
 
 ---
 
@@ -84,7 +83,9 @@ Replace `job-search-agent` with whichever agent you want to run.
      - 🟡 Yellow — good match
      - 🔴 Red — potential match (some gaps)
 
-2. **Analyze a job description** — paste a job description and launch `jd-analyzer-agent` to extract required skills, ATS keywords, and real role priorities.
+2. **Analyze a job description** — launch `jd-analyzer-agent` with a job posting URL or paste the JD text directly. It produces a `jd-analysis.md` file with required skills, ATS keywords, and real role priorities.
+
+   > If the analysis output notes that the job description couldn't be fully fetched, copy the full JD text from the job posting and paste it into the chat to get a complete result.
 
 3. **Tailor your CV** — paste a job description and launch `cv-tailoring-agent` to get `jd-analysis.md` and `recommendations.md` — a structured tailoring guide you apply to your own CV file.
 
@@ -125,7 +126,10 @@ In addition to manual use, the workspace includes a fully autonomous daily loop 
    > 4. Create a new app password — name it anything (e.g. "Job Search")
    > 5. Copy the 16-character code into `.credentials/gmail.secret` (no spaces, no quotes)
 
-2. Run `setup-scheduler.ps1` as Administrator once to register the scheduled tasks.
+2. Run `setup-scheduler.ps1` as Administrator once to register the scheduled tasks. Open a command prompt as Administrator and run:
+   ```
+   powershell.exe -ExecutionPolicy Bypass -File ".\setup-scheduler.ps1"
+   ```
 3. The pipeline runs automatically from that point on — job search at 08:15, reply checks every hour from 09:00.
 
 > `.credentials/` is excluded from version control — never commit credentials.

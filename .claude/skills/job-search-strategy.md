@@ -9,6 +9,12 @@ You are executing a structured job search. Follow this playbook in order. Do not
 
 ---
 
+## Automated Mode Rules
+
+When running as part of the automated pipeline (triggered by `run-job-search.ps1`, not by a live user), **never block or wait for input.** These rules override **every** "ask the user", "stop", and "stop and ask" instruction anywhere in this playbook. If something is ambiguous, make a reasonable assumption and proceed. Flagging issues in the output file (warnings, notes) is always allowed and encouraged.
+
+---
+
 ## Phase 1 — Profile Extraction (Before You Search)
 
 Before opening any job board:
@@ -118,7 +124,7 @@ Check: how many new (non-deduped) jobs survived Phase 4?
 
 4. **Rules:**
    - **Never use WebSearch to look up a company or job** — queries like `"company name" "job title" requirements` are forbidden.
-   - If a URL 404s or returns no content, skip it — it still counts toward the 10-fetch limit.
+   - If a URL 404s, returns no content, returns an error, or times out — skip it immediately and move to the next URL. Do not retry. It still counts toward the 10-fetch limit.
    - **Do not fetch more than 10 JDs total across Phase 6, including any retries or replacements.**
 
 ---

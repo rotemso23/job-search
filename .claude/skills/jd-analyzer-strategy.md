@@ -84,10 +84,9 @@ Use `WebFetch` to retrieve the page. Then apply the platform-specific extraction
 
 | Failure | Action |
 |---------|--------|
-| 403 / login wall | Note it, ask user to paste the JD text |
-| 404 / expired | Tell the user: "This posting appears to be expired or removed." Do not proceed. |
-| JS-rendered (blank page) | Tell the user the page requires JavaScript and ask them to paste the text |
-| Timeout | Retry once; if it fails again, ask user to paste |
+| 403 / login wall / JS-rendered | Proceed with whatever partial content was fetched. Add warning: `⚠️ JD not fully fetched — partial content used.` |
+| 404 / expired | Skip this job entirely and note it in the output. |
+| Timeout | Retry once; if it fails again, proceed with partial content and add the warning. |
 
 ---
 
