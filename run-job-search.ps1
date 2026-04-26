@@ -33,6 +33,21 @@ Follow the full job-search-strategy playbook (all phases).
 Save results to job-results/${date}_search.md and append all new jobs to the Excel tracker.
 "@
 
+$timeoutSeconds = 900  # 15 minutes
+$currentPid = $PID
+
+# Watchdog: kills only the claude process spawned by this script (not all claude processes)
+$watchdog = [System.Threading.Timer]::new({
+    param($state)
+    $searcher = New-Object System.Management.ManagementObjectSearcher(
+        "SELECT ProcessId FROM Win32_Process WHERE ParentProcessId = $state")
+    foreach ($proc in $searcher.Get()) {
+        & taskkill /F /T /PID ([int]$proc["ProcessId"]) 2>$null
+    }
+    "[TIMEOUT] Agent killed after $timeoutSeconds seconds." |
+        Out-File -Append -FilePath $debugLog -Encoding UTF8
+}, $currentPid, ($timeoutSeconds * 1000), [System.Threading.Timeout]::Infinite)
+
 $writer = [System.IO.StreamWriter]::new($debugLog, $true, [System.Text.Encoding]::UTF8)
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 try {
@@ -58,6 +73,7 @@ try {
         }
     }
 } finally {
+    $watchdog.Dispose()
     $writer.Close()
 }
 
