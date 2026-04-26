@@ -126,9 +126,9 @@ In addition to manual use, the workspace includes a fully autonomous daily loop 
    > 4. Create a new app password — name it anything (e.g. "Job Search")
    > 5. Copy the 16-character code into `.credentials/gmail.secret` (no spaces, no quotes)
 
-2. Run `setup-scheduler.ps1` as Administrator once to register the scheduled tasks. Open a command prompt as Administrator and run:
+2. Run `setup-scheduler.ps1` as Administrator once to register the scheduled tasks. Open a command prompt as Administrator and run (replace the path with the full path to the repo folder on your machine):
    ```
-   powershell.exe -ExecutionPolicy Bypass -File ".\setup-scheduler.ps1"
+   powershell.exe -ExecutionPolicy Bypass -File "C:\full\path\to\repo\setup-scheduler.ps1"
    ```
 3. The pipeline runs automatically from that point on — job search at 08:15, reply checks every hour from 09:00.
 
