@@ -118,7 +118,7 @@ Check: how many new (non-deduped) jobs survived Phase 4?
    - Snippet mentions seniority level that matches `seniority` from `config.ini` → +1
    - Location matches the user's preferred location (from `config.ini` `location`) → +1 (far periphery or mismatched city → -1)
 
-2. **WebFetch the top 10 only** by snippet score, using their direct `linkedin.com/jobs/view/...` URLs. Fetch them one-by-one and track your count: after fetch #10, move to Phase 7 — no exceptions.
+2. **WebFetch the top 10 only** by snippet score, using their direct `linkedin.com/jobs/view/...` URLs. Fetch them one-by-one and track your count: after fetch #10, move to Phase 7 — no exceptions. **Wait 5 seconds before each fetch** (use `Bash` with `sleep 5`).
 
 3. **All other jobs** (ranked below top 10, or beyond the 10-fetch limit) are not fetched. They proceed to Phase 7 with snippet only and are capped at ⭐⭐.
 
