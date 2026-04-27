@@ -31,7 +31,7 @@ Copy `config.example.ini` → `config.ini` in the repo root and fill in your det
 
 ```ini
 [user]
-email = your@gmail.com
+email = your@gmail.com    # Gmail address used to send/receive job digests
 cv_file = MY_CV.md        # the Markdown CV the agents will read
 
 [search]
@@ -58,7 +58,7 @@ python convert_cv.py
 
 This reads your PDF and creates the Markdown file automatically. Re-run it any time you update your CV.
 
-> **Important:** open `.gitignore`, find the `# MY_CV.md` line at the bottom, uncomment it and replace `MY_CV.md` with your actual filename so it never gets committed.
+> **Important:** open `.gitignore`, find the `# MY_CV.md` line, uncomment it and replace `MY_CV.md` with your actual filename so it never gets committed.
 
 ---
 
@@ -87,7 +87,7 @@ Replace `job-search-agent` with whichever agent you want to run.
 
    > If the analysis output notes that the job description couldn't be fully fetched, copy the full JD text from the job posting and paste it into the chat to get a complete result.
 
-3. **Tailor your CV** — paste a job description and launch `cv-tailoring-agent` to get `jd-analysis.md` and `recommendations.md` — a structured tailoring guide you apply to your own CV file.
+3. **Tailor your CV** — paste a job description and launch `cv-tailoring-agent` to get `jd-analysis.md` and `recommendations.md` — a structured tailoring guide you apply to your own CV file. If `jd-analysis.md` already exists from a previous run, the agent skips the analysis and goes straight to tailoring.
 
 ---
 
